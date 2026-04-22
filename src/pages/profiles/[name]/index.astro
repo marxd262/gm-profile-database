@@ -6,8 +6,6 @@
  */
 import Base from '@/layouts/Base.astro';
 import ProfileChart from '@/components/charts/ProfileChart.astro';
-import VersionTabs from '@/components/tabs/VersionTabs.astro';
-import VariantSelector from '@/components/tabs/VariantSelector.astro';
 import Badge from '@/components/ui/Badge.astro';
 import { resolveDownloadPath, getFilename } from '@/utils/download';
 import { readdir, readFile } from 'fs/promises';
@@ -112,7 +110,7 @@ const difficultyVariant = {
   </div>
 
   <!-- Profile Header -->
-  <div class="card bg-base-100 shadow-lg mb-8" data-pagefind-body>
+  <div class="card bg-base-100 shadow-lg mb-4" data-pagefind-body>
     <div class="card-body">
       <div class="flex flex-col md:flex-row justify-between items-start gap-4">
         <div class="flex-1">
@@ -142,56 +140,146 @@ const difficultyVariant = {
           </div>
         </div>
         
-        <!-- Download Button -->
-        <div class="flex flex-col gap-2">
-          <a 
-            id="download-button"
-            href={downloadPath}
-            download
-            class="btn btn-primary btn-lg"
-            aria-label={`Download ${profile.displayName} profile`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Download Profile
-          </a>
-          
-          {profile.link && (
+        <!-- Download Button (Pattern A only) -->
+        {isPatternA && (
+          <div class="flex flex-col gap-2">
             <a 
-              href={profile.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn-outline btn-sm"
+              id="download-button"
+              href={downloadPath}
+              download
+              class="btn btn-primary btn-lg"
+              aria-label={`Download ${profile.displayName} profile`}
             >
-              💬 Discuss
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Profile
             </a>
-          )}
-        </div>
+            
+            {profile.link && (
+              <a 
+                href={profile.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline btn-sm"
+              >
+                💬 Discuss
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   </div>
 
-  <!-- Version Selector (Pattern C only) -->
-  {isPatternC && (
-    <div class="card bg-base-100 shadow-lg mb-8">
-      <div class="card-body">
-        <VersionTabs versions={profile.versions} defaultVersion={defaultVersion.id} />
-      </div>
-    </div>
-  )}
+  <!-- Selection Card (Pattern B & C) -->
+  {(isPatternB || isPatternC) && (
+    <div class="card bg-base-100 shadow-sm mb-4">
+      <div class="card-body py-4">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+          <!-- Version dropdown (Pattern C only) -->
+          {isPatternC && (
+            <div class="flex-1 min-w-[140px]">
+              <label class="label py-1">
+                <span class="label-text font-medium">Version</span>
+              </label>
+              <select id="version-select" class="select select-bordered select-sm w-full">
+                {profile.versions.map((version: any, index: number) => (
+                  <option value={index} data-version-id={version.id} selected={index === 0}>
+                    {version.label}
+                    {version.status === 'beta' && ' (Beta)'}
+                    {version.status === 'experimental' && ' (Exp)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
-  <!-- Variant Selector -->
-  {(isPatternB || isPatternC) && allVariantsForDisplay.length > 0 && (
-    <div class="card bg-base-100 shadow-lg mb-8">
-      <div class="card-body">
-        <VariantSelector variants={allVariantsForDisplay} defaultVariant={defaultVariant?.id} />
+          <!-- Variant dropdown -->
+          <div class={isPatternC ? 'flex-1 min-w-[140px]' : 'flex-1 min-w-[200px]'}>
+            <label class="label py-1">
+              <span class="label-text font-medium">Variant</span>
+            </label>
+            <select id="variant-select" class="select select-bordered select-sm w-full">
+              {allVariantsForDisplay.map((variant: any, index: number) => (
+                <option 
+                  value={variant.id} 
+                  data-file={variant.file}
+                  data-download-path={variant.downloadPath}
+                  data-dose={variant.doseRange}
+                  data-ratio={variant.brewRatio}
+                  data-temp={variant.tempRange}
+                  data-time={variant.timeRange}
+                  data-grind={variant.grindSize}
+                  data-notes={variant.notes}
+                  selected={index === 0}
+                >
+                  {variant.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <!-- Download Button -->
+          <a 
+            id="download-button"
+            href={downloadPath}
+            download
+            class="btn btn-primary btn-sm gap-2"
+            aria-label={`Download ${profile.displayName} profile`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download
+          </a>
+        </div>
+
+        <!-- Variant details inline -->
+        <div id="variant-details" class="mt-4 pt-4 border-t border-base-300">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+            {defaultVariant?.doseRange && (
+              <div class="bg-base-200 rounded px-2 py-1">
+                <div class="text-xs opacity-60">Dose</div>
+                <div class="font-medium">{defaultVariant.doseRange}</div>
+              </div>
+            )}
+            {defaultVariant?.brewRatio && (
+              <div class="bg-base-200 rounded px-2 py-1">
+                <div class="text-xs opacity-60">Ratio</div>
+                <div class="font-medium">{defaultVariant.brewRatio}</div>
+              </div>
+            )}
+            {defaultVariant?.tempRange && (
+              <div class="bg-base-200 rounded px-2 py-1">
+                <div class="text-xs opacity-60">Temp</div>
+                <div class="font-medium">{defaultVariant.tempRange}</div>
+              </div>
+            )}
+            {defaultVariant?.timeRange && (
+              <div class="bg-base-200 rounded px-2 py-1">
+                <div class="text-xs opacity-60">Time</div>
+                <div class="font-medium">{defaultVariant.timeRange}</div>
+              </div>
+            )}
+          </div>
+          {defaultVariant?.grindSize && (
+            <div class="mt-2 text-sm">
+              <span class="font-medium">Grind:</span> {defaultVariant.grindSize}
+            </div>
+          )}
+          {defaultVariant?.notes && (
+            <div class="mt-2 text-sm opacity-70">
+              {defaultVariant.notes}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )}
 
   <!-- Chart -->
-  <div class="card bg-base-100 shadow-lg mb-8">
+  <div class="card bg-base-100 shadow-sm mb-4">
     <div class="card-body">
       <h2 class="card-title mb-4">Profile Visualization</h2>
       <div id="chart-wrapper">
@@ -205,7 +293,7 @@ const difficultyVariant = {
 
   <!-- Machine Compatibility -->
   {profile.machineCompatibility && profile.machineCompatibility.length > 0 && (
-    <div class="card bg-base-100 shadow-lg mb-8">
+    <div class="card bg-base-100 shadow-sm mb-4">
       <div class="card-body">
         <h2 class="card-title mb-4">Compatible Machines</h2>
         <div class="flex flex-wrap gap-2">
@@ -224,24 +312,37 @@ const difficultyVariant = {
     </a>
   </div>
 
-  <!-- Version/Variant switching script -->
+  <!-- Selection script -->
   <script define:vars={{ profile, isPatternC, isPatternB }}>
-    // Store all profile data
     const profileData = profile;
     const hasVersions = isPatternC;
     const hasVariants = isPatternB || isPatternC;
     
-    let currentVersionIndex = 0;
-    let currentVariantId = null;
     let currentVariants = [];
     
-    // Initialize current variants based on pattern
+    // Initialize current variants
     if (hasVersions) {
       currentVariants = profileData.versions[0].variants;
-      currentVariantId = currentVariants[0]?.id;
     } else if (hasVariants) {
       currentVariants = profileData.variants;
-      currentVariantId = currentVariants[0]?.id;
+    }
+
+    /**
+     * Read variant data from selected option
+     */
+    function getVariantDataFromSelect(selectEl) {
+      const option = selectEl.options[selectEl.selectedIndex];
+      return {
+        id: selectEl.value,
+        file: option.dataset.file,
+        downloadPath: option.dataset.downloadPath,
+        doseRange: option.dataset.dose,
+        brewRatio: option.dataset.ratio,
+        tempRange: option.dataset.temp,
+        timeRange: option.dataset.time,
+        grindSize: option.dataset.grind,
+        notes: option.dataset.notes
+      };
     }
     
     /**
@@ -251,49 +352,44 @@ const difficultyVariant = {
       const detailsContainer = document.getElementById('variant-details');
       if (!detailsContainer || !variant) return;
       
-      let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">';
+      let html = '<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">';
       
       if (variant.doseRange) {
-        html += `<div class="stat bg-base-200 rounded-lg p-3">
-          <div class="stat-title text-xs">Dose</div>
-          <div class="stat-value text-lg">${variant.doseRange}</div>
+        html += `<div class="bg-base-200 rounded px-2 py-1">
+          <div class="text-xs opacity-60">Dose</div>
+          <div class="font-medium">${variant.doseRange}</div>
         </div>`;
       }
       
       if (variant.brewRatio) {
-        html += `<div class="stat bg-base-200 rounded-lg p-3">
-          <div class="stat-title text-xs">Brew Ratio</div>
-          <div class="stat-value text-lg">${variant.brewRatio}</div>
+        html += `<div class="bg-base-200 rounded px-2 py-1">
+          <div class="text-xs opacity-60">Ratio</div>
+          <div class="font-medium">${variant.brewRatio}</div>
         </div>`;
       }
       
       if (variant.tempRange) {
-        html += `<div class="stat bg-base-200 rounded-lg p-3">
-          <div class="stat-title text-xs">Temperature</div>
-          <div class="stat-value text-lg">${variant.tempRange}</div>
+        html += `<div class="bg-base-200 rounded px-2 py-1">
+          <div class="text-xs opacity-60">Temp</div>
+          <div class="font-medium">${variant.tempRange}</div>
         </div>`;
       }
       
       if (variant.timeRange) {
-        html += `<div class="stat bg-base-200 rounded-lg p-3">
-          <div class="stat-title text-xs">Time</div>
-          <div class="stat-value text-lg">${variant.timeRange}</div>
+        html += `<div class="bg-base-200 rounded px-2 py-1">
+          <div class="text-xs opacity-60">Time</div>
+          <div class="font-medium">${variant.timeRange}</div>
         </div>`;
       }
       
       html += '</div>';
       
       if (variant.grindSize) {
-        html += `<div class="mt-3 text-sm"><span class="font-semibold">Grind Size:</span> ${variant.grindSize}</div>`;
+        html += `<div class="mt-2 text-sm"><span class="font-medium">Grind:</span> ${variant.grindSize}</div>`;
       }
       
       if (variant.notes) {
-        html += `<div class="alert alert-info mt-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span>${variant.notes}</span>
-        </div>`;
+        html += `<div class="mt-2 text-sm opacity-70">${variant.notes}</div>`;
       }
       
       detailsContainer.innerHTML = html;
@@ -304,17 +400,13 @@ const difficultyVariant = {
      */
     function updateChart(variantFile) {
       const chartContainer = document.querySelector('.chart-container');
-      if (!chartContainer) return;
+      if (!chartContainer || !variantFile) return;
       
       const profilePath = `/gm-profile-database/profiles/${profileData.slug}/${variantFile}`;
       chartContainer.setAttribute('data-profile-path', profilePath);
       
-      // Reload chart with new data
-      if (window.reloadChart) {
-        window.reloadChart();
-      } else if (window.retryChart) {
-        window.retryChart();
-      }
+      if (window.reloadChart) window.reloadChart();
+      else if (window.retryChart) window.retryChart();
     }
     
     /**
@@ -322,13 +414,12 @@ const difficultyVariant = {
      */
     function updateDownloadButton(variant) {
       const downloadButton = document.getElementById('download-button');
-      if (!downloadButton) return;
+      if (!downloadButton || !variant) return;
       
-      // Resolve download path using priority logic
       let downloadPath;
-      if (variant?.downloadPath) {
+      if (variant.downloadPath) {
         downloadPath = variant.downloadPath;
-      } else if (variant?.file) {
+      } else if (variant.file) {
         downloadPath = `/gm-profile-database/profiles/${profileData.slug}/${variant.file}`;
       } else if (profileData.downloadPath) {
         downloadPath = profileData.downloadPath;
@@ -340,74 +431,43 @@ const difficultyVariant = {
     }
     
     /**
-     * Handle version tab click
+     * Handle version selection change
      */
-    if (hasVersions) {
-      const versionTabs = document.querySelectorAll('.version-tabs-container .tab');
-      versionTabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => {
-          // Update active tab
-          versionTabs.forEach(t => t.classList.remove('tab-active'));
-          tab.classList.add('tab-active');
+    const versionSelect = document.getElementById('version-select');
+    if (versionSelect) {
+      versionSelect.addEventListener('change', (e) => {
+        const versionIndex = parseInt(e.target.value);
+        const version = profileData.versions[versionIndex];
+        
+        currentVariants = version.variants;
+        const variantSelect = document.getElementById('variant-select');
+        
+        if (variantSelect && currentVariants.length > 0) {
+          // Rebuild variant options
+          variantSelect.innerHTML = currentVariants.map((v, i) => 
+            `<option value="${v.id}" data-file="${v.file}" data-download-path="${v.downloadPath || ''}" data-dose="${v.doseRange || ''}" data-ratio="${v.brewRatio || ''}" data-temp="${v.tempRange || ''}" data-time="${v.timeRange || ''}" data-grind="${v.grindSize || ''}" data-notes="${v.notes || ''}" ${i === 0 ? 'selected' : ''}>${v.label}</option>`
+          ).join('');
           
-          currentVersionIndex = index;
-          const version = profileData.versions[currentVersionIndex];
-          
-          // Update version info
-          const versionInfo = document.getElementById('version-info');
-          if (versionInfo && version.changelog) {
-            versionInfo.innerHTML = `
-              <div class="alert alert-info alert-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>${version.changelog}</span>
-              </div>
-            `;
-          }
-          
-          // Update variants dropdown
-          currentVariants = version.variants;
-          const variantSelect = document.getElementById('variant-select');
-          if (variantSelect) {
-            variantSelect.innerHTML = currentVariants.map(v => 
-              `<option value="${v.id}" data-file="${v.file}">${v.label}</option>`
-            ).join('');
-            
-            // Select first variant
-            currentVariantId = currentVariants[0]?.id;
-            const firstVariant = currentVariants[0];
-            
-            // Update everything for first variant
-            updateVariantDetails(firstVariant);
-            updateChart(firstVariant.file);
-            updateDownloadButton(firstVariant);
-          }
-        });
+          // Get first variant and update everything
+          const firstVariant = currentVariants[0];
+          updateVariantDetails(firstVariant);
+          updateChart(firstVariant.file);
+          updateDownloadButton(firstVariant);
+        }
       });
     }
     
     /**
      * Handle variant selection change
      */
-    const variantSelect = document.getElementById('variant-select');
-    if (variantSelect) {
-      variantSelect.addEventListener('change', (e) => {
-        const selectedId = e.target.value;
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const variantFile = selectedOption.getAttribute('data-file');
+    const variantSelectEl = document.getElementById('variant-select');
+    if (variantSelectEl) {
+      variantSelectEl.addEventListener('change', (e) => {
+        const variant = getVariantDataFromSelect(e.target);
         
-        currentVariantId = selectedId;
-        const variant = currentVariants.find(v => v.id === selectedId);
-        
-        if (variant) {
-          // Update variant details
+        if (variant && variant.file) {
           updateVariantDetails(variant);
-          
-          // Update chart
-          updateChart(variantFile);
-          
-          // Update download button
+          updateChart(variant.file);
           updateDownloadButton(variant);
         }
       });
