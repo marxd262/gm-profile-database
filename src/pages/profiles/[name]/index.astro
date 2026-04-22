@@ -1,0 +1,416 @@
+---
+/**
+ * Profile Detail Page
+ * Displays full profile information with chart and download options
+ * Supports Pattern B (variants) and Pattern C (versions with variants)
+ */
+import Base from '@/layouts/Base.astro';
+import ProfileChart from '@/components/charts/ProfileChart.astro';
+import VersionTabs from '@/components/tabs/VersionTabs.astro';
+import VariantSelector from '@/components/tabs/VariantSelector.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { resolveDownloadPath, getFilename } from '@/utils/download';
+import { readdir, readFile } from 'fs/promises';
+import { join } from 'path';
+
+// Generate static paths for all profiles
+export async function getStaticPaths() {
+  try {
+    const profilesPath = join(process.cwd(), 'profiles');
+    const entries = await readdir(profilesPath, { withFileTypes: true });
+    
+    const paths = [];
+    
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        try {
+          const indexPath = join(profilesPath, entry.name, 'index.json');
+          const indexContent = await readFile(indexPath, 'utf-8');
+          const indexData = JSON.parse(indexContent);
+          
+          paths.push({
+            params: { name: entry.name },
+            props: { 
+              profile: {
+                ...indexData,
+                slug: entry.name,
+              }
+            },
+          });
+        } catch (error) {
+          console.warn(`Failed to load profile ${entry.name}:`, error);
+        }
+      }
+    }
+    
+    return paths;
+  } catch (error) {
+    console.error('Error generating static paths:', error);
+    return [];
+  }
+}
+
+const { profile } = Astro.props;
+
+// Determine profile pattern
+const hasVersions = profile.versions && profile.versions.length > 0;
+const hasVariants = profile.variants && profile.variants.length > 0;
+const isPatternC = hasVersions;
+const isPatternB = hasVariants && !hasVersions;
+const isPatternA = !hasVersions && !hasVariants;
+
+// Get default version and variant
+let defaultVersion = null;
+let defaultVariant = null;
+let defaultFile = profile.file;
+let allVariantsForDisplay = [];
+
+if (isPatternC) {
+  // Pattern C: Versions with Variants
+  defaultVersion = profile.versions[0];
+  defaultVariant = defaultVersion.variants[0];
+  defaultFile = defaultVariant.file;
+  allVariantsForDisplay = defaultVersion.variants;
+} else if (isPatternB) {
+  // Pattern B: Just Variants
+  defaultVariant = profile.variants[0];
+  defaultFile = defaultVariant.file;
+  allVariantsForDisplay = profile.variants;
+} else if (isPatternA) {
+  // Pattern A: Simple profile
+  defaultFile = profile.file;
+}
+
+// Resolve download path
+const downloadPath = resolveDownloadPath(profile, defaultVariant);
+
+// Format date
+const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Difficulty badge variant
+const difficultyVariant = {
+  beginner: 'success',
+  intermediate: 'warning',
+  advanced: 'error',
+}[profile.difficulty] || 'default';
+---
+
+<Base 
+  title={`${profile.displayName} - Gaggimate Profile Store`}
+  description={profile.description}
+>
+  <!-- Breadcrumb -->
+  <div class="text-sm breadcrumbs mb-4">
+    <ul>
+      <li><a href="/gm-profile-database/">Home</a></li>
+      <li>{profile.displayName}</li>
+    </ul>
+  </div>
+
+  <!-- Profile Header -->
+  <div class="card bg-base-100 shadow-lg mb-8" data-pagefind-body>
+    <div class="card-body">
+      <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold mb-2" data-pagefind-meta="title">{profile.displayName}</h1>
+          <p class="text-base-content/70 mb-4">{profile.description}</p>
+          
+          <!-- Metadata -->
+          <div class="flex flex-wrap gap-3 items-center">
+            <Badge variant={difficultyVariant as any} size="md" data-pagefind-filter="difficulty">
+              {profile.difficulty}
+            </Badge>
+            
+            <div class="text-sm text-base-content/60">
+              by <span class="font-semibold" data-pagefind-filter="author">{profile.author}</span>
+            </div>
+            
+            <div class="text-sm text-base-content/60">
+              {formattedDate}
+            </div>
+          </div>
+          
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-2 mt-4">
+            {profile.tags.map((tag: string) => (
+              <Badge variant="outline" size="sm" data-pagefind-filter="tag">{tag}</Badge>
+            ))}
+          </div>
+        </div>
+        
+        <!-- Download Button -->
+        <div class="flex flex-col gap-2">
+          <a 
+            id="download-button"
+            href={downloadPath}
+            download
+            class="btn btn-primary btn-lg"
+            aria-label={`Download ${profile.displayName} profile`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Profile
+          </a>
+          
+          {profile.link && (
+            <a 
+              href={profile.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline btn-sm"
+            >
+              💬 Discuss
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Version Selector (Pattern C only) -->
+  {isPatternC && (
+    <div class="card bg-base-100 shadow-lg mb-8">
+      <div class="card-body">
+        <VersionTabs versions={profile.versions} defaultVersion={defaultVersion.id} />
+      </div>
+    </div>
+  )}
+
+  <!-- Variant Selector -->
+  {(isPatternB || isPatternC) && allVariantsForDisplay.length > 0 && (
+    <div class="card bg-base-100 shadow-lg mb-8">
+      <div class="card-body">
+        <VariantSelector variants={allVariantsForDisplay} defaultVariant={defaultVariant?.id} />
+      </div>
+    </div>
+  )}
+
+  <!-- Chart -->
+  <div class="card bg-base-100 shadow-lg mb-8">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Profile Visualization</h2>
+      <div id="chart-wrapper">
+        <ProfileChart 
+          profileName={profile.slug}
+          variantFile={defaultFile}
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Machine Compatibility -->
+  {profile.machineCompatibility && profile.machineCompatibility.length > 0 && (
+    <div class="card bg-base-100 shadow-lg mb-8">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Compatible Machines</h2>
+        <div class="flex flex-wrap gap-2">
+          {profile.machineCompatibility.map((machine: string) => (
+            <Badge variant="info" size="md" data-pagefind-filter="machine">{machine}</Badge>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Back to profiles -->
+  <div class="text-center mt-8">
+    <a href="/gm-profile-database/" class="btn btn-ghost">
+      ← Back to All Profiles
+    </a>
+  </div>
+
+  <!-- Version/Variant switching script -->
+  <script define:vars={{ profile, isPatternC, isPatternB }}>
+    // Store all profile data
+    const profileData = profile;
+    const hasVersions = isPatternC;
+    const hasVariants = isPatternB || isPatternC;
+    
+    let currentVersionIndex = 0;
+    let currentVariantId = null;
+    let currentVariants = [];
+    
+    // Initialize current variants based on pattern
+    if (hasVersions) {
+      currentVariants = profileData.versions[0].variants;
+      currentVariantId = currentVariants[0]?.id;
+    } else if (hasVariants) {
+      currentVariants = profileData.variants;
+      currentVariantId = currentVariants[0]?.id;
+    }
+    
+    /**
+     * Update variant details display
+     */
+    function updateVariantDetails(variant) {
+      const detailsContainer = document.getElementById('variant-details');
+      if (!detailsContainer || !variant) return;
+      
+      let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">';
+      
+      if (variant.doseRange) {
+        html += `<div class="stat bg-base-200 rounded-lg p-3">
+          <div class="stat-title text-xs">Dose</div>
+          <div class="stat-value text-lg">${variant.doseRange}</div>
+        </div>`;
+      }
+      
+      if (variant.brewRatio) {
+        html += `<div class="stat bg-base-200 rounded-lg p-3">
+          <div class="stat-title text-xs">Brew Ratio</div>
+          <div class="stat-value text-lg">${variant.brewRatio}</div>
+        </div>`;
+      }
+      
+      if (variant.tempRange) {
+        html += `<div class="stat bg-base-200 rounded-lg p-3">
+          <div class="stat-title text-xs">Temperature</div>
+          <div class="stat-value text-lg">${variant.tempRange}</div>
+        </div>`;
+      }
+      
+      if (variant.timeRange) {
+        html += `<div class="stat bg-base-200 rounded-lg p-3">
+          <div class="stat-title text-xs">Time</div>
+          <div class="stat-value text-lg">${variant.timeRange}</div>
+        </div>`;
+      }
+      
+      html += '</div>';
+      
+      if (variant.grindSize) {
+        html += `<div class="mt-3 text-sm"><span class="font-semibold">Grind Size:</span> ${variant.grindSize}</div>`;
+      }
+      
+      if (variant.notes) {
+        html += `<div class="alert alert-info mt-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>${variant.notes}</span>
+        </div>`;
+      }
+      
+      detailsContainer.innerHTML = html;
+    }
+    
+    /**
+     * Update chart with new variant data
+     */
+    function updateChart(variantFile) {
+      const chartContainer = document.querySelector('.chart-container');
+      if (!chartContainer) return;
+      
+      const profilePath = `/gm-profile-database/profiles/${profileData.slug}/${variantFile}`;
+      chartContainer.setAttribute('data-profile-path', profilePath);
+      
+      // Reload chart with new data
+      if (window.reloadChart) {
+        window.reloadChart();
+      } else if (window.retryChart) {
+        window.retryChart();
+      }
+    }
+    
+    /**
+     * Update download button
+     */
+    function updateDownloadButton(variant) {
+      const downloadButton = document.getElementById('download-button');
+      if (!downloadButton) return;
+      
+      // Resolve download path using priority logic
+      let downloadPath;
+      if (variant?.downloadPath) {
+        downloadPath = variant.downloadPath;
+      } else if (variant?.file) {
+        downloadPath = `/gm-profile-database/profiles/${profileData.slug}/${variant.file}`;
+      } else if (profileData.downloadPath) {
+        downloadPath = profileData.downloadPath;
+      } else {
+        downloadPath = `/gm-profile-database/profiles/${profileData.slug}/`;
+      }
+      
+      downloadButton.setAttribute('href', downloadPath);
+    }
+    
+    /**
+     * Handle version tab click
+     */
+    if (hasVersions) {
+      const versionTabs = document.querySelectorAll('.version-tabs-container .tab');
+      versionTabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+          // Update active tab
+          versionTabs.forEach(t => t.classList.remove('tab-active'));
+          tab.classList.add('tab-active');
+          
+          currentVersionIndex = index;
+          const version = profileData.versions[currentVersionIndex];
+          
+          // Update version info
+          const versionInfo = document.getElementById('version-info');
+          if (versionInfo && version.changelog) {
+            versionInfo.innerHTML = `
+              <div class="alert alert-info alert-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>${version.changelog}</span>
+              </div>
+            `;
+          }
+          
+          // Update variants dropdown
+          currentVariants = version.variants;
+          const variantSelect = document.getElementById('variant-select');
+          if (variantSelect) {
+            variantSelect.innerHTML = currentVariants.map(v => 
+              `<option value="${v.id}" data-file="${v.file}">${v.label}</option>`
+            ).join('');
+            
+            // Select first variant
+            currentVariantId = currentVariants[0]?.id;
+            const firstVariant = currentVariants[0];
+            
+            // Update everything for first variant
+            updateVariantDetails(firstVariant);
+            updateChart(firstVariant.file);
+            updateDownloadButton(firstVariant);
+          }
+        });
+      });
+    }
+    
+    /**
+     * Handle variant selection change
+     */
+    const variantSelect = document.getElementById('variant-select');
+    if (variantSelect) {
+      variantSelect.addEventListener('change', (e) => {
+        const selectedId = e.target.value;
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const variantFile = selectedOption.getAttribute('data-file');
+        
+        currentVariantId = selectedId;
+        const variant = currentVariants.find(v => v.id === selectedId);
+        
+        if (variant) {
+          // Update variant details
+          updateVariantDetails(variant);
+          
+          // Update chart
+          updateChart(variantFile);
+          
+          // Update download button
+          updateDownloadButton(variant);
+        }
+      });
+    }
+  </script>
+</Base>

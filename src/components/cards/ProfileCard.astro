@@ -1,0 +1,107 @@
+---
+/**
+ * ProfileCard Component
+ * Displays a profile in card format on the homepage
+ */
+
+interface Props {
+  profile: {
+    name: string;
+    displayName: string;
+    description: string;
+    author: string;
+    date: string;
+    difficulty: string;
+    tags: string[];
+    picture?: string;
+    slug: string;
+  };
+}
+
+const { profile } = Astro.props;
+
+// Difficulty badge styling
+const difficultyClass = {
+  beginner: 'badge-success',
+  intermediate: 'badge-warning',
+  advanced: 'badge-error',
+}[profile.difficulty] || 'badge-neutral';
+
+// Format date
+const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300" data-profile-name={profile.name}>
+  <a href={`/gm-profile-database/profiles/${profile.slug}/`} class="block">
+    <!-- Profile Image -->
+    {profile.picture ? (
+      <figure class="aspect-video bg-base-200">
+        <img 
+          src={profile.picture} 
+          alt={profile.displayName}
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </figure>
+    ) : (
+      <figure class="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+        <div class="text-4xl font-bold text-base-content/30">
+          {profile.displayName.substring(0, 2).toUpperCase()}
+        </div>
+      </figure>
+    )}
+    
+    <div class="card-body">
+      <!-- Title -->
+      <h2 class="card-title text-lg">
+        {profile.displayName}
+      </h2>
+      
+      <!-- Difficulty Badge -->
+      <div class="flex gap-2 items-center mb-2">
+        <span class={`badge ${difficultyClass} badge-sm`}>
+          {profile.difficulty}
+        </span>
+        <span class="text-xs text-base-content/60">{formattedDate}</span>
+      </div>
+      
+      <!-- Description -->
+      <p class="text-sm text-base-content/80 line-clamp-3">
+        {profile.description}
+      </p>
+      
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-1 mt-2">
+        {profile.tags.slice(0, 3).map(tag => (
+          <span class="badge badge-outline badge-sm">{tag}</span>
+        ))}
+        {profile.tags.length > 3 && (
+          <span class="badge badge-ghost badge-sm">+{profile.tags.length - 3}</span>
+        )}
+      </div>
+      
+      <!-- Author -->
+      <div class="card-actions justify-between items-center mt-4">
+        <div class="text-xs text-base-content/60">
+          by {profile.author}
+        </div>
+        <button class="btn btn-primary btn-sm">
+          View Profile →
+        </button>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

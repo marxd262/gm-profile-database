@@ -1,0 +1,65 @@
+---
+/**
+ * VersionTabs Component
+ * Displays tabs for switching between profile versions
+ */
+
+interface Props {
+  versions: Array<{
+    id: string;
+    label: string;
+    releaseDate: string;
+    status?: string;
+    changelog?: string;
+    variants: any[];
+  }>;
+  defaultVersion?: string;
+}
+
+const { versions, defaultVersion } = Astro.props;
+const activeVersion = defaultVersion || versions[0]?.id;
+---
+
+<div class="version-tabs-container mb-6">
+  <h3 class="text-lg font-semibold mb-3">Version</h3>
+  <div class="tabs tabs-boxed">
+    {versions.map((version, index) => (
+      <button 
+        class={`tab ${version.id === activeVersion ? 'tab-active' : ''}`}
+        data-version-id={version.id}
+        data-version-index={index}
+        aria-label={`Select ${version.label}`}
+      >
+        {version.label}
+        {version.status === 'beta' && (
+          <span class="badge badge-warning badge-xs ml-2">Beta</span>
+        )}
+        {version.status === 'experimental' && (
+          <span class="badge badge-error badge-xs ml-2">Exp</span>
+        )}
+      </button>
+    ))}
+  </div>
+  
+  <!-- Version info -->
+  <div id="version-info" class="mt-3 text-sm text-base-content/70">
+    {versions.find(v => v.id === activeVersion)?.changelog && (
+      <div class="alert alert-info alert-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>{versions.find(v => v.id === activeVersion)?.changelog}</span>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .tab {
+    transition: all 0.2s;
+  }
+  
+  .tab:hover {
+    opacity: 0.8;
+  }
+</style>

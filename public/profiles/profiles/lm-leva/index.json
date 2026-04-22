@@ -1,0 +1,24 @@
+{
+  "name": "lm-leva",
+  "displayName": "LM Leva Style",
+  "description": "Simulates the La Marzocco Leva extraction curve. Features a gentle fill phase, controlled preinfusion, pressure rise, hold, and decline. Ideal for light to medium roasts.",
+  "author": "Gaggimate",
+  "date": "2026-04-22",
+  "link": "https://discord.gg/gaggimate",
+  "tags": ["lever", "advanced", "light-roast"],
+  "difficulty": "advanced",
+  "variants": [
+    {
+      "id": "standard",
+      "file": "lmleva.json",
+      "label": "Standard",
+      "brewRatio": "1:2.0-2.5",
+      "doseRange": "18-20g",
+      "yieldRange": "36-50g",
+      "tempRange": "88-90°C",
+      "timeRange": "20-45s",
+      "grindSize": "very-fine",
+      "notes": "Best with light to medium roasts"
+    }
+  ]
+}

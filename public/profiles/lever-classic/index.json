@@ -1,0 +1,24 @@
+{
+  "name": "lever-classic",
+  "displayName": "Lever Classic",
+  "description": "Profile for lever-operated machines like the La Pavoni/Europiccola or Gaggia MDF. Simulates the classic lever pull extraction with preinfusion, ramp, and decline phases. Best with darker roasts.",
+  "author": "Gaggimate",
+  "date": "2026-04-22",
+  "link": "https://discord.gg/gaggimate",
+  "tags": ["lever", "classic", "pro"],
+  "difficulty": "advanced",
+  "variants": [
+    {
+      "id": "cremina",
+      "file": "lever.json",
+      "label": "Cremina/Lever",
+      "brewRatio": "1:1.5-2.2",
+      "doseRange": "18-20g",
+      "yieldRange": "28-44g",
+      "tempRange": "85-88°C",
+      "timeRange": "40-60s",
+      "grindSize": "very-fine",
+      "notes": "Best with dark roasts"
+    }
+  ]
+}

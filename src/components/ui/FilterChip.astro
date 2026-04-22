@@ -1,0 +1,63 @@
+---
+/**
+ * FilterChip Component
+ * Displays an active filter as a removable chip
+ */
+
+interface Props {
+  label: string;
+  value: string;
+  type: 'search' | 'tag' | 'difficulty' | 'machine' | 'sort';
+  onRemove?: string; // JavaScript expression to execute on remove
+}
+
+const { label, value, type, onRemove } = Astro.props;
+
+// Color mapping by type
+const typeColors = {
+  search: 'badge-primary',
+  tag: 'badge-secondary',
+  difficulty: 'badge-accent',
+  machine: 'badge-info',
+  sort: 'badge-ghost'
+};
+
+const badgeClass = typeColors[type] || 'badge-neutral';
+---
+
+<div 
+  class="filter-chip inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-base-200 border border-base-300"
+  data-filter-type={type}
+  data-filter-value={value}
+>
+  <span class="text-base-content/80">{label}</span>
+  <button 
+    type="button"
+    class="filter-chip-remove btn btn-ghost btn-xs btn-circle hover:bg-error hover:text-error-content"
+    aria-label={`Remove ${label} filter`}
+    data-action={onRemove}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
+
+<style>
+  .filter-chip {
+    transition: all 0.2s ease;
+  }
+  
+  .filter-chip:hover {
+    border-color: hsl(var(--p) / 0.5);
+  }
+  
+  .filter-chip-remove {
+    opacity: 0.6;
+    transition: all 0.2s ease;
+  }
+  
+  .filter-chip:hover .filter-chip-remove {
+    opacity: 1;
+  }
+</style>

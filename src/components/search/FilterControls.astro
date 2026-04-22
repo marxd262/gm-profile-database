@@ -1,0 +1,165 @@
+---
+/**
+ * FilterControls Component
+ * Pure template component for filter UI
+ * All logic handled by parent page script
+ */
+
+interface Props {
+  allTags: string[];
+  allMachines: string[];
+  initialDifficulty?: string;
+  initialTags?: string[];
+  initialMachine?: string;
+  initialSort?: string;
+}
+
+const { 
+  allTags = [],
+  allMachines = [],
+  initialDifficulty = 'all',
+  initialTags = [],
+  initialMachine = 'all',
+  initialSort = 'newest'
+} = Astro.props;
+
+// Difficulty options
+const difficulties = [
+  { value: 'all', label: 'All' },
+  { value: 'beginner', label: 'Beginner', color: 'btn-success' },
+  { value: 'intermediate', label: 'Intermediate', color: 'btn-warning' },
+  { value: 'advanced', label: 'Advanced', color: 'btn-error' }
+];
+
+// Sort options
+const sortOptions = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'alpha', label: 'Name (A-Z)' },
+  { value: 'difficulty', label: 'Difficulty (Easy → Hard)' }
+];
+---
+
+<div class="filter-controls" id="filter-controls">
+  <!-- Filter Bar -->
+  <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
+    <!-- Left: Difficulty Pills -->
+    <div class="flex gap-2 flex-wrap" id="difficulty-buttons">
+      {difficulties.map(diff => (
+        <button 
+          class={`btn btn-sm btn-outline difficulty-btn ${diff.color || ''} ${initialDifficulty === diff.value ? 'btn-active' : ''}`}
+          data-difficulty={diff.value}
+          aria-pressed={initialDifficulty === diff.value}
+        >
+          {diff.label}
+        </button>
+      ))}
+    </div>
+    
+    <!-- Right: Tag, Machine, Sort -->
+    <div class="flex gap-3 flex-wrap items-center" id="filter-dropdowns">
+      <!-- Tag Filter -->
+      {allTags.length > 0 && (
+        <div class="dropdown dropdown-hover">
+          <label tabindex="0" class="btn btn-sm btn-outline gap-1 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            Tags
+            <span id="tag-count" class="badge badge-sm badge-primary hidden">0</span>
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow-lg bg-base-100 rounded-box w-56 max-h-64 overflow-y-auto z-50">
+            {allTags.map(tag => (
+              <li>
+                <label class="cursor-pointer flex items-center gap-2 px-2 py-1 hover:bg-base-200 rounded">
+                  <input 
+                    type="checkbox" 
+                    class="checkbox checkbox-sm tag-checkbox" 
+                    value={tag}
+                    checked={initialTags.includes(tag)}
+                  />
+                  <span class="capitalize">{tag}</span>
+                </label>
+              </li>
+            ))}
+            <li class="border-t border-base-300 mt-1 pt-1">
+              <button type="button" class="clear-tags-btn text-sm text-primary hover:underline w-full text-left px-2 py-1">
+                Clear all tags
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+      
+      <!-- Machine Filter -->
+      {allMachines.length > 0 && (
+        <select 
+          id="machine-filter" 
+          class="select select-sm select-bordered"
+          aria-label="Filter by machine"
+        >
+          <option value="all">All Machines</option>
+          {allMachines.map(machine => (
+            <option value={machine} selected={initialMachine === machine}>{machine}</option>
+          ))}
+        </select>
+      )}
+      
+      <!-- Sort -->
+      <select 
+        id="sort-select" 
+        class="select select-sm select-bordered"
+        aria-label="Sort profiles"
+      >
+        {sortOptions.map(opt => (
+          <option value={opt.value} selected={initialSort === opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+  
+  <!-- Active Filter Chips -->
+  <div id="active-filters" class="flex flex-wrap gap-2 items-center min-h-[2rem]">
+    <span id="active-filters-label" class="text-sm text-base-content/60 hidden">Active:</span>
+    <div id="filter-chips" class="flex flex-wrap gap-2"></div>
+    <button 
+      id="clear-all-btn"
+      type="button"
+      class="btn btn-xs btn-ghost text-primary hidden"
+    >
+      Clear all
+    </button>
+  </div>
+</div>
+
+<style>
+  .filter-controls {
+    position: relative;
+  }
+  
+  .difficulty-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .difficulty-btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Dropdown scroll styling */
+  .dropdown-content {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--bc) / 0.2) transparent;
+  }
+  
+  .dropdown-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .dropdown-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .dropdown-content::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--bc) / 0.2);
+    border-radius: 3px;
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+/**
+ * Badge Component
+ * Reusable badge with different variants
+ */
+
+interface Props {
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+  [key: string]: any;
+}
+
+const { 
+  variant = 'default', 
+  size = 'md',
+  class: className = '',
+  ...rest
+} = Astro.props;
+
+const variantClass = {
+  default: '',
+  success: 'badge-success',
+  warning: 'badge-warning',
+  error: 'badge-error',
+  info: 'badge-info',
+  outline: 'badge-outline',
+}[variant];
+
+const sizeClass = {
+  sm: 'badge-sm',
+  md: '',
+  lg: 'badge-lg',
+}[size];
+
+// Convert data-pagefind-* props to HTML attributes
+const dataAttrs = Object.entries(rest)
+  .filter(([key]) => key.startsWith('data-'))
+  .reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {});
+---
+
+<span class={`badge ${variantClass} ${sizeClass} ${className}`} {...dataAttrs}>
+  <slot />
+</span>

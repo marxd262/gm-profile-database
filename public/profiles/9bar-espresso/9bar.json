@@ -1,0 +1,27 @@
+{
+  "id": "9bar",
+  "label": "9 Bar Espresso",
+  "type": "standard",
+  "description": "A classic 9 bar extraction",
+  "temperature": 93,
+  "phases": [
+    {
+      "name": "Pump",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 28,
+      "pump": {
+        "target": "pressure",
+        "pressure": 9,
+        "flow": 0
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 36
+        }
+      ]
+    }
+  ]
+}

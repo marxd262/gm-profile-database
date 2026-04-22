@@ -1,0 +1,121 @@
+---
+/**
+ * Pagination Component
+ * Provides numbered pagination navigation
+ */
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl?: string;
+}
+
+const { currentPage, totalPages, baseUrl = '/' } = Astro.props;
+
+/**
+ * Generates page numbers to display with ellipsis
+ */
+function getPageNumbers(current: number, total: number): (number | string)[] {
+  const pages: (number | string)[] = [];
+  const maxVisible = 7;
+  
+  if (total <= maxVisible) {
+    // Show all pages
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+  } else {
+    // Always show first page
+    pages.push(1);
+    
+    // Calculate range around current page
+    const start = Math.max(2, current - 2);
+    const end = Math.min(total - 1, current + 2);
+    
+    // Add ellipsis after first page if needed
+    if (start > 2) {
+      pages.push('...');
+    }
+    
+    // Add range
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    // Add ellipsis before last page if needed
+    if (end < total - 1) {
+      pages.push('...');
+    }
+    
+    // Always show last page
+    pages.push(total);
+  }
+  
+  return pages;
+}
+
+const pageNumbers = getPageNumbers(currentPage, totalPages);
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+
+const prevUrl = hasPrev ? `${baseUrl}?page=${currentPage - 1}` : undefined;
+const nextUrl = hasNext ? `${baseUrl}?page=${currentPage + 1}` : undefined;
+---
+
+<nav class="flex justify-center mt-8" aria-label="Pagination navigation">
+  <div class="join">
+    <!-- Previous button -->
+    {hasPrev ? (
+      <a 
+        href={prevUrl}
+        class="join-item btn btn-sm"
+        aria-label="Previous page"
+      >
+        ← Previous
+      </a>
+    ) : (
+      <button 
+        class="join-item btn btn-sm btn-disabled"
+        aria-label="Previous page"
+        disabled
+      >
+        ← Previous
+      </button>
+    )}
+
+    <!-- Page numbers -->
+    {pageNumbers.map(page => (
+      page === '...' ? (
+        <button class="join-item btn btn-sm btn-disabled" disabled>...</button>
+      ) : (
+        <a
+          href={`${baseUrl}?page=${page}`}
+          class={`join-item btn btn-sm ${page === currentPage ? 'btn-primary' : ''}`}
+          aria-label={`Page ${page}`}
+          aria-current={page === currentPage ? 'page' : undefined}
+        >
+          {page}
+        </a>
+      )
+    ))}
+
+    <!-- Next button -->
+    {hasNext ? (
+      <a 
+        href={nextUrl}
+        class="join-item btn btn-sm"
+        aria-label="Next page"
+      >
+        Next →
+      </a>
+    ) : (
+      <button 
+        class="join-item btn btn-sm btn-disabled"
+        aria-label="Next page"
+        disabled
+      >
+        Next →
+      </button>
+    )}
+  </div>
+</nav>

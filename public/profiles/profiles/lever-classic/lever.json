@@ -1,0 +1,84 @@
+{
+  "id": "lever",
+  "label": "Lever Classic",
+  "type": "pro",
+  "description": "Darker Roasts - Very Fine - 40-60s - 1:1.5-2.2",
+  "temperature": 86.5,
+  "phases": [
+    {
+      "name": "Preinfusion Start",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 2,
+      "temperature": 86.5,
+      "pump": {
+        "target": "pressure",
+        "pressure": 1.1,
+        "flow": 0
+      }
+    },
+    {
+      "name": "Preinfusion",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 3,
+      "pump": {
+        "target": "pressure",
+        "pressure": 1.1,
+        "flow": 0
+      },
+      "targets": [
+        {
+          "type": "pressure",
+          "operator": "gte",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "name": "Soak",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 10,
+      "pump": {
+        "target": "pressure",
+        "pressure": 1.1,
+        "flow": 0
+      }
+    },
+    {
+      "name": "Ramp",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 10,
+      "pump": {
+        "target": "pressure",
+        "pressure": 9,
+        "flow": 0
+      },
+      "transition": {
+        "type": "ease-in-out",
+        "duration": 10,
+        "adaptive": true
+      }
+    },
+    {
+      "name": "Ramp Down",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 50,
+      "pump": {
+        "target": "pressure",
+        "pressure": 3,
+        "flow": 0
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 36
+        }
+      ]
+    }
+  ]
+}

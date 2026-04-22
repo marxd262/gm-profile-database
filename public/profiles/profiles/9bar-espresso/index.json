@@ -1,0 +1,22 @@
+{
+  "name": "9bar-espresso",
+  "displayName": "9 Bar Espresso",
+  "description": "A classic 9 bar extraction profile. Perfect for beginners and everyday espresso. Simple, straightforward, and forgiving of small variations in dose and grind size.",
+  "author": "Gaggimate",
+  "date": "2026-04-22",
+  "tags": ["espresso", "classic", "beginner"],
+  "difficulty": "beginner",
+  "variants": [
+    {
+      "id": "standard",
+      "file": "9bar.json",
+      "label": "Standard",
+      "brewRatio": "1:2",
+      "doseRange": "18-20g",
+      "yieldRange": "36-40g",
+      "tempRange": "90-96°C",
+      "timeRange": "25-35s",
+      "notes": "Works with most coffee beans"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "gm-profile-database",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Community catalog for Gaggimate espresso brewing profiles",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "validate": "node scripts/validate.js",
+    "lint": "eslint src/ --ext .js,.jsx,.astro",
+    "lint:json": "echo 'JSON linting...'",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/a11y.spec.js",
+    "test:perf": "lighthouse http://localhost:4321 --output=json --output-path=./lighthouse-results.json",
+    "check": "npm run validate && npm run lint && npm test",
+    "build:full": "npm run build && npx pagefind --site dist --glob \"profiles/**/*.html\" --exclude-selectors \"header,footer,nav,.skip-link,.navbar,#pagination-container,.filter-controls\" --force-language en --keep-index-url --output-subdir _pagefind"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^6.0.0",
+    "astro": "^5.0.0",
+    "chart.js": "^4.4.0",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "daisyui": "^4.12.0",
+    "pagefind": "^1.5.2",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.8.0",
+    "@playwright/test": "^1.40.0",
+    "@testing-library/preact": "^3.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "@types/node": "^22.0.0",
+    "@vitest/ui": "^1.0.0",
+    "ajv": "^8.0.0",
+    "ajv-formats": "^3.0.0",
+    "eslint": "^8.0.0",
+    "eslint-plugin-astro": "^0.31.0",
+    "glob": "^10.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marxd262/gm-profile-database.git"
+  },
+  "keywords": [
+    "espresso",
+    "gaggimate",
+    "profile",
+    "coffee"
+  ],
+  "author": "Gaggimate",
+  "license": "CC-BY-NC-SA-4.0"
+}

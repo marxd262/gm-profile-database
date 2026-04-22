@@ -1,0 +1,93 @@
+---
+/**
+ * VariantSelector Component
+ * Displays dropdown for selecting profile variants
+ */
+
+interface Props {
+  variants: Array<{
+    id: string;
+    file: string;
+    label: string;
+    doseRange?: string;
+    brewRatio?: string;
+    tempRange?: string;
+    timeRange?: string;
+    grindSize?: string;
+    notes?: string;
+  }>;
+  defaultVariant?: string;
+}
+
+const { variants, defaultVariant } = Astro.props;
+const activeVariant = defaultVariant || variants[0]?.id;
+const activeVariantData = variants.find(v => v.id === activeVariant) || variants[0];
+---
+
+<div class="variant-selector-container mb-6">
+  <h3 class="text-lg font-semibold mb-3">Variant</h3>
+  
+  <!-- Variant dropdown -->
+  <select 
+    id="variant-select" 
+    class="select select-bordered w-full max-w-xs"
+    aria-label="Select variant"
+  >
+    {variants.map((variant) => (
+      <option 
+        value={variant.id}
+        data-file={variant.file}
+        selected={variant.id === activeVariant}
+      >
+        {variant.label}
+      </option>
+    ))}
+  </select>
+  
+  <!-- Variant details -->
+  <div id="variant-details" class="mt-4">
+    {activeVariantData && (
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        {activeVariantData.doseRange && (
+          <div class="stat bg-base-200 rounded-lg p-3">
+            <div class="stat-title text-xs">Dose</div>
+            <div class="stat-value text-lg">{activeVariantData.doseRange}</div>
+          </div>
+        )}
+        {activeVariantData.brewRatio && (
+          <div class="stat bg-base-200 rounded-lg p-3">
+            <div class="stat-title text-xs">Brew Ratio</div>
+            <div class="stat-value text-lg">{activeVariantData.brewRatio}</div>
+          </div>
+        )}
+        {activeVariantData.tempRange && (
+          <div class="stat bg-base-200 rounded-lg p-3">
+            <div class="stat-title text-xs">Temperature</div>
+            <div class="stat-value text-lg">{activeVariantData.tempRange}</div>
+          </div>
+        )}
+        {activeVariantData.timeRange && (
+          <div class="stat bg-base-200 rounded-lg p-3">
+            <div class="stat-title text-xs">Time</div>
+            <div class="stat-value text-lg">{activeVariantData.timeRange}</div>
+          </div>
+        )}
+      </div>
+    )}
+    
+    {activeVariantData?.grindSize && (
+      <div class="mt-3 text-sm">
+        <span class="font-semibold">Grind Size:</span> {activeVariantData.grindSize}
+      </div>
+    )}
+    
+    {activeVariantData?.notes && (
+      <div class="alert alert-info mt-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>{activeVariantData.notes}</span>
+      </div>
+    )}
+  </div>
+</div>

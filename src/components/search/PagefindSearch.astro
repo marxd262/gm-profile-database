@@ -1,0 +1,197 @@
+---
+/**
+ * PagefindSearch Component
+ * Integrates Pagefind search with existing filter system
+ * 
+ * Approach: Pagefind searches HTML content → returns matching profiles
+ * → existing filter system further refines by tags/difficulty
+ */
+
+interface Props {
+  placeholder?: string;
+}
+
+const { placeholder = "Search profiles..." } = Astro.props;
+---
+
+<div class="pagefind-search-container">
+  <div class="relative">
+    <!-- Search Icon -->
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+    
+    <!-- Search Input -->
+    <input 
+      type="search" 
+      id="pagefind-search-input"
+      placeholder={placeholder}
+      class="input input-bordered w-full pl-10 pr-10"
+      aria-label="Search profiles"
+      autocomplete="off"
+    />
+    
+    <!-- Clear Button -->
+    <button 
+      type="button"
+      id="pagefind-search-clear"
+      class="absolute inset-y-0 right-0 pr-3 flex items-center hidden"
+      aria-label="Clear search"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50 hover:text-base-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Search Status -->
+  <div id="pagefind-search-status" class="text-sm text-base-content/60 mt-2 hidden">
+    <span id="pagefind-search-status-text"></span>
+  </div>
+</div>
+
+<script is:inline>
+  // Pagefind search integration
+  (function() {
+    const searchInput = document.getElementById('pagefind-search-input');
+    const searchClear = document.getElementById('pagefind-search-clear');
+    const searchStatus = document.getElementById('pagefind-search-status');
+    const searchStatusText = document.getElementById('pagefind-search-status-text');
+    
+    if (!searchInput) return;
+    
+    let pagefindInstance = null;
+    let debounceTimer;
+    
+    // Initialize Pagefind
+    async function initPagefind() {
+      // Try multiple paths to handle both GitHub Pages and local development
+      const paths = [
+        '/gm-profile-database/_pagefind/pagefind.js',
+        '/_pagefind/pagefind.js'
+      ];
+      
+      for (const path of paths) {
+        try {
+          const pagefindModule = await import(path);
+          pagefindInstance = pagefindModule;
+          console.log('Pagefind initialized successfully from', path);
+          return;
+        } catch (err) {
+          console.warn('Failed to load Pagefind from', path, ':', err.message);
+        }
+      }
+      
+      console.warn('Pagefind not available, using fallback search');
+      pagefindInstance = null;
+    }
+    
+    // Show/hide clear button
+    function updateClearButton() {
+      if (searchInput.value.length > 0) {
+        searchClear.classList.remove('hidden');
+      } else {
+        searchClear.classList.add('hidden');
+      }
+    }
+    
+    // Perform Pagefind search
+    async function performSearch(query) {
+      if (!query) {
+        searchStatus.classList.add('hidden');
+        // Dispatch empty search to show all profiles
+        document.dispatchEvent(new CustomEvent('search-change', {
+          detail: { query: '', pagefindResults: null }
+        }));
+        return;
+      }
+      
+      searchStatus.classList.remove('hidden');
+      searchStatusText.textContent = `Searching for "${query}"...`;
+      
+      // If Pagefind is available, use it
+      if (pagefindInstance) {
+        try {
+          const results = await pagefindInstance.search(query);
+          
+          // Extract profile names from URLs
+          const profileNames = results.results.map(result => {
+            const url = result.url || result.meta?.url || '';
+            // Extract profile name from URL: /profiles/NAME/
+            const match = url.match(/\/profiles\/([^/]+)/);
+            return match ? match[1] : null;
+          }).filter(Boolean);
+          
+          searchStatus.classList.add('hidden');
+          
+          // Dispatch event with Pagefind results
+          document.dispatchEvent(new CustomEvent('search-change', {
+            detail: { 
+              query,
+              pagefindResults: profileNames,
+              totalResults: results.results.length
+            }
+          }));
+          
+          return;
+        } catch (err) {
+          console.warn('Pagefind search failed, using fallback:', err);
+        }
+      }
+      
+      // Fallback: dispatch regular search event
+      searchStatus.classList.add('hidden');
+      document.dispatchEvent(new CustomEvent('search-change', {
+        detail: { query }
+      }));
+    }
+    
+    // Debounced search handler
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      updateClearButton();
+      
+      debounceTimer = setTimeout(() => {
+        const query = e.target.value.trim().toLowerCase();
+        performSearch(query);
+      }, 300);
+    });
+    
+    // Clear button handler
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClear.classList.add('hidden');
+      searchStatus.classList.add('hidden');
+      performSearch('');
+      searchInput.focus();
+    });
+    
+    // Initialize Pagefind on load
+    initPagefind();
+    
+    // Initial state
+    updateClearButton();
+  })();
+</script>
+
+<style>
+  .pagefind-search-container {
+    position: relative;
+  }
+  
+  #pagefind-search-input::-webkit-search-decoration,
+  #pagefind-search-input::-webkit-search-cancel-button,
+  #pagefind-search-input::-webkit-search-results-button,
+  #pagefind-search-input::-webkit-search-results-decoration {
+    display: none;
+  }
+  
+  #pagefind-search-clear {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+</style>

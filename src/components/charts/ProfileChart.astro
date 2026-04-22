@@ -1,0 +1,149 @@
+---
+/**
+ * ProfileChart Component
+ * Renders an interactive Chart.js visualization of profile data
+ */
+
+interface Props {
+  profileName: string;
+  variantFile: string;
+}
+
+const { profileName, variantFile } = Astro.props;
+const profilePath = `/gm-profile-database/profiles/${profileName}/${variantFile}`;
+---
+
+<div class="chart-container" data-profile-path={profilePath}>
+  <!-- Canvas for Chart.js -->
+  <canvas 
+    id="profile-chart" 
+    role="img" 
+    aria-label={`Pressure and flow chart for ${profileName}`}
+  ></canvas>
+  
+  <!-- Loading state -->
+  <div class="chart-loading" hidden>
+    <div class="skeleton h-96 w-full rounded-lg"></div>
+    <p class="text-center mt-2 text-sm text-base-content/60">Loading chart...</p>
+  </div>
+  
+  <!-- Error state -->
+  <div class="chart-error alert alert-error" hidden>
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div>
+      <h3 class="font-bold">Failed to load chart</h3>
+      <p class="text-sm">Unable to load profile data</p>
+    </div>
+    <button class="btn btn-sm" onclick="window.retryChart()">Retry</button>
+  </div>
+</div>
+
+<!-- Chart.js script -->
+<script>
+  import { Chart, registerables } from 'chart.js';
+  import annotationPlugin from 'chartjs-plugin-annotation';
+  import { makeChartData } from '@/utils/chart';
+
+  // Register Chart.js components
+  Chart.register(...registerables, annotationPlugin);
+
+  let chartInstance: Chart | null = null;
+
+  async function loadProfileChart() {
+    const container = document.querySelector('.chart-container') as HTMLElement;
+    if (!container) return;
+
+    const canvas = document.getElementById('profile-chart') as HTMLCanvasElement;
+    const loading = container.querySelector('.chart-loading') as HTMLElement;
+    const error = container.querySelector('.chart-error') as HTMLElement;
+    const profilePath = container.dataset.profilePath;
+
+    if (!profilePath) {
+      console.error('No profile path provided');
+      return;
+    }
+
+    try {
+      // Show loading state
+      loading.hidden = false;
+      canvas.hidden = true;
+      error.hidden = true;
+
+      // Destroy existing chart if any
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+
+      // Fetch profile data
+      const response = await fetch(profilePath);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const profileData = await response.json();
+
+      // Validate profile data
+      if (!profileData.phases || profileData.phases.length === 0) {
+        throw new Error('Profile has no phases');
+      }
+
+      // Prepare chart configuration
+      const chartConfig = makeChartData(profileData);
+
+      // Hide loading, show canvas
+      loading.hidden = true;
+      canvas.hidden = false;
+
+      // Create chart
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        chartInstance = new Chart(ctx, chartConfig);
+      }
+
+    } catch (err) {
+      console.error('Chart loading error:', err);
+      
+      // Show error state
+      loading.hidden = true;
+      canvas.hidden = true;
+      error.hidden = false;
+      
+      const errorMessage = error.querySelector('p');
+      if (errorMessage && err instanceof Error) {
+        errorMessage.textContent = err.message;
+      }
+    }
+  }
+
+  // Retry/Reload function (accessible globally)
+  (window as any).retryChart = function() {
+    loadProfileChart();
+  };
+  
+  // Expose reload function for variant switching
+  (window as any).reloadChart = function() {
+    loadProfileChart();
+  };
+
+  // Load chart on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadProfileChart);
+  } else {
+    loadProfileChart();
+  }
+</script>
+
+<style>
+  .chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+  }
+
+  .chart-container canvas {
+    max-height: 400px;
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+/**
+ * SearchBar Component
+ * Enhanced search input with Pagefind integration support
+ * Falls back to client-side text search when Pagefind is not initialized
+ */
+
+interface Props {
+  placeholder?: string;
+  initialValue?: string;
+}
+
+const { 
+  placeholder = "Search profiles...",
+  initialValue = "" 
+} = Astro.props;
+---
+
+<div class="search-container form-control w-full">
+  <div class="relative">
+    <!-- Search Icon -->
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+    
+    <!-- Search Input -->
+    <input 
+      type="search" 
+      id="search-input"
+      value={initialValue}
+      placeholder={placeholder}
+      class="input input-bordered w-full pl-10 pr-10"
+      aria-label="Search profiles"
+      autocomplete="off"
+    />
+    
+    <!-- Clear Button (hidden by default) -->
+    <button 
+      type="button"
+      id="search-clear"
+      class="absolute inset-y-0 right-0 pr-3 flex items-center hidden"
+      aria-label="Clear search"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/50 hover:text-base-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Search status / results info -->
+  <div id="search-status" class="text-sm text-base-content/60 mt-1 hidden">
+    <span id="search-status-text"></span>
+  </div>
+</div>
+
+<script>
+  // Search functionality
+  (function() {
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    const searchStatus = document.getElementById('search-status');
+    const searchStatusText = document.getElementById('search-status-text');
+    
+    if (!searchInput) return;
+    
+    let debounceTimer;
+    
+    // Show/hide clear button
+    function updateClearButton() {
+      if (searchInput.value.length > 0) {
+        searchClear.classList.remove('hidden');
+      } else {
+        searchClear.classList.add('hidden');
+      }
+    }
+    
+    // Debounced search handler
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      updateClearButton();
+      
+      debounceTimer = setTimeout(() => {
+        const query = e.target.value.trim().toLowerCase();
+        
+        // Dispatch custom event for filter system
+        document.dispatchEvent(new CustomEvent('search-change', {
+          detail: { query }
+        }));
+        
+        // Update status
+        if (query) {
+          searchStatus.classList.remove('hidden');
+          searchStatusText.textContent = `Searching for "${query}"...`;
+        } else {
+          searchStatus.classList.add('hidden');
+        }
+      }, 300);
+    });
+    
+    // Clear button handler
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClear.classList.add('hidden');
+      searchStatus.classList.add('hidden');
+      
+      document.dispatchEvent(new CustomEvent('search-change', {
+        detail: { query: '' }
+      }));
+      
+      searchInput.focus();
+    });
+    
+    // Initial state
+    updateClearButton();
+  })();
+</script>
+
+<style>
+  .search-container {
+    position: relative;
+  }
+  
+  #search-input::-webkit-search-decoration,
+  #search-input::-webkit-search-cancel-button,
+  #search-input::-webkit-search-results-button,
+  #search-input::-webkit-search-results-decoration {
+    display: none;
+  }
+  
+  #search-clear {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+</style>

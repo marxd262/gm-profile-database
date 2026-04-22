@@ -1,0 +1,79 @@
+/* Google Fonts - Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+/* Global styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  body {
+    @apply bg-base-100 text-base-content;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Skip link for accessibility */
+  .skip-link {
+    @apply absolute -top-10 left-0 px-4 py-2 bg-primary text-primary-content z-50;
+    @apply focus:top-0 transition-all;
+  }
+  
+  /* Profile grid */
+  .profile-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+  
+  /* Chart container */
+  .chart-container {
+    @apply relative w-full;
+    min-height: 400px;
+  }
+  
+  .chart-container canvas {
+    max-height: 400px;
+  }
+  
+  /* Loading skeleton */
+  .skeleton {
+    @apply bg-gradient-to-r from-base-200 via-base-300 to-base-200;
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Difficulty badges */
+  .badge-beginner {
+    @apply badge-success;
+  }
+  
+  .badge-intermediate {
+    @apply badge-warning;
+  }
+  
+  .badge-advanced {
+    @apply badge-error;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
