@@ -36,7 +36,7 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
 });
 ---
 
-<article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300" data-profile-name={profile.name}>
+<article class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden" data-profile-name={profile.name}>
   <a href={`/gm-profile-database/profiles/${profile.slug}/`} class="block">
     <!-- Profile Image -->
     {profile.picture ? (

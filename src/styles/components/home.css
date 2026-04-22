@@ -23,8 +23,8 @@
 }
 
 .search-highlight {
-  background-color: hsl(var(--p) / 0.2);
-  color: hsl(var(--pc));
+  background-color: color-mix(in oklch, var(--color-primary) 20%, transparent);
+  color: var(--color-primary-content);
   border-radius: 2px;
   padding: 0 2px;
   font-weight: 600;

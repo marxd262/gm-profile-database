@@ -13,7 +13,7 @@
 /* Dropdown scroll styling */
 .dropdown-content {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--bc) / 0.2) transparent;
+  scrollbar-color: color-mix(in oklch, var(--color-base-content) 20%, transparent) transparent;
 }
 
 .dropdown-content::-webkit-scrollbar {
@@ -25,6 +25,6 @@
 }
 
 .dropdown-content::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--bc) / 0.2);
+  background-color: color-mix(in oklch, var(--color-base-content) 20%, transparent);
   border-radius: 3px;
 }

@@ -3,7 +3,7 @@
 }
 
 .filter-chip:hover {
-  border-color: hsl(var(--p) / 0.5);
+  border-color: color-mix(in oklch, var(--color-primary) 50%, transparent);
 }
 
 .filter-chip-remove {
