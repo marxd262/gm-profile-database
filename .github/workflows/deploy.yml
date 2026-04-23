@@ -15,7 +15,7 @@ permissions:
 # Prevent concurrent deployments
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true  # Cancel old deployments when new ones start
 
 jobs:
   validate:
@@ -53,6 +53,7 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     needs: validate
     if: github.ref == 'refs/heads/main'
