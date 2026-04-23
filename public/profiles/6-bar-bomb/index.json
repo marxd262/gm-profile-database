@@ -3,7 +3,9 @@
   "displayName": "6 Bar Bomb",
   "description": "High pressure followed by consistent flow rate. Optimized for light roasts",
   "author": "Unknown",
+  "link": "https://discord.com/channels/951416527721230336/1437170951229018212",
   "date": "2026-04-23",
+  "picture": "6bar.png",
   "tags": ["light-roast", "pro"],
   "complexity": "mid",
   "variants": [

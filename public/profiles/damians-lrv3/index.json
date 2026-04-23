@@ -1,9 +1,10 @@
 {
-  "name": "damians-lrv3",
-  "displayName": "Damian's LRv3",
-  "description": "Londinium R Machine simulation with pressure ramp and decline phases",
+  "name": "Londonium",
+  "displayName": "Damian's Londonium",
+  "description": "Flow based profile ideal for darker roasts - Simulates a Londinium R Lever Machine",
   "author": "Damian",
   "date": "2026-04-23",
+  "link": "https://discord.com/channels/951416527721230336/1401290123584344255",
   "tags": ["londinium", "pro"],
   "complexity": "mid",
   "variants": [

@@ -2,8 +2,10 @@
   "name": "soup-lance-mods",
   "displayName": "Soup Lance Mods",
   "description": "Low pressure espresso profile (less than 1 bar) optimized for high ratio extractions",
+  "link": "https://discord.com/channels/951416527721230336/1404626704659513505",
   "author": "Unknown",
   "date": "2026-04-23",
+  "picture": "soup.png"  ,
   "tags": ["low-pressure", "high-ratio", "pro"],
   "complexity": "mid",
   "variants": [
