@@ -64,7 +64,7 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
       </figure>
     )}
     
-    <div class="card-body flex flex-col">
+    <div class="card-body flex flex-col" style="color: var(--card-text-color, inherit)">
       <!-- Top Content -->
       <div class="flex-grow">
         <!-- Title -->
@@ -75,16 +75,16 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
         <!-- Complexity Badge -->
         <div class="flex flex-col gap-1 mb-2">
           <div class="flex gap-2 items-center">
-            <span class="text-xs font-semibold text-base-content/70">Profile Complexity</span>
+            <span class="text-xs font-semibold opacity-70">Profile Complexity</span>
             <span class={`badge ${complexityClass} badge-sm`}>
               {profile.complexity}
             </span>
           </div>
-          <span class="text-xs text-base-content/60">{formattedDate}</span>
+          <span class="text-xs opacity-60">{formattedDate}</span>
         </div>
 
         <!-- Description -->
-        <p class="text-sm text-base-content/80 line-clamp-3">
+        <p class="text-sm opacity-80 line-clamp-3">
           {profile.description}
         </p>
       </div>
@@ -101,7 +101,7 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
 
       <!-- Author -->
       <div class="card-actions justify-between items-center mt-2">
-        <div class="text-xs text-base-content/60">
+        <div class="text-xs opacity-60">
           by {profile.author}
         </div>
         <button class="btn btn-primary btn-sm">
@@ -113,6 +113,129 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
 </article>
 
 <script>
+// sRGB <-> linear conversions (WCAG 2.1)
+const toLinear = c => {
+  const s = c / 255;
+  return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+};
+const toSRGB = l => {
+  const c = Math.max(0, Math.min(1, l));
+  return Math.round((c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055) * 255);
+};
+
+const getLuminance = (r, g, b) =>
+  0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+
+const getContrastRatio = (lum1, lum2) => {
+  const lighter = Math.max(lum1, lum2);
+  const darker = Math.min(lum1, lum2);
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+// Normalize any color format (oklch, hsl, rgb, …) to RGB via canvas
+const colorToRGB = (colorStr) => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 1;
+  const cx = c.getContext('2d');
+  cx.fillStyle = colorStr;
+  cx.fillRect(0, 0, 1, 1);
+  const d = cx.getImageData(0, 0, 1, 1).data;
+  return { r: d[0], g: d[1], b: d[2] };
+};
+
+// Scale in linear space towards black to reach targetLum
+const darkenToLuminance = (r, g, b, currentLum, targetLum) => {
+  const factor = currentLum > 0 ? Math.min(1, targetLum / currentLum) : 0;
+  return {
+    r: toSRGB(toLinear(r) * factor),
+    g: toSRGB(toLinear(g) * factor),
+    b: toSRGB(toLinear(b) * factor),
+  };
+};
+
+// Mix in linear space towards white to reach targetLum
+const lightenToLuminance = (r, g, b, currentLum, targetLum) => {
+  const mixFactor = currentLum < 1 ? Math.max(0, Math.min(1, (targetLum - currentLum) / (1 - currentLum))) : 0;
+  return {
+    r: toSRGB(toLinear(r) + (1 - toLinear(r)) * mixFactor),
+    g: toSRGB(toLinear(g) + (1 - toLinear(g)) * mixFactor),
+    b: toSRGB(toLinear(b) + (1 - toLinear(b)) * mixFactor),
+  };
+};
+
+// The minimum opacity used on text (opacity-60 class). The text color must be
+// strong enough that even at this opacity over the background it meets 4.5:1.
+const MIN_TEXT_OPACITY = 0.6;
+
+// Binary-search for the grey sRGB value (0–255) whose blended luminance at
+// `opacity` over (bgR,bgG,bgB) equals targetEffLum.
+// lighter=true  → return smallest v with effLum >= target (for lightening)
+// lighter=false → return largest  v with effLum <= target (for darkening)
+function greyForEffectiveLum(bgR, bgG, bgB, targetEffLum, opacity, lighter) {
+  let lo = 0, hi = 255;
+  for (let i = 0; i < 8; i++) {
+    const mid = (lo + hi) >> 1;
+    const effLum = getLuminance(
+      mid * opacity + bgR * (1 - opacity),
+      mid * opacity + bgG * (1 - opacity),
+      mid * opacity + bgB * (1 - opacity)
+    );
+    if (effLum < targetEffLum) lo = mid + 1;
+    else hi = mid;
+  }
+  return lighter ? Math.min(255, lo) : Math.max(0, lo - 1);
+}
+
+function applyContrastColor(cardElement) {
+  const raw = cardElement.dataset.rawColor;
+  if (!raw) return;
+
+  const [r, g, b] = raw.split(',').map(Number);
+  cardElement.style.setProperty('--card-bg-color', `rgb(${r}, ${g}, ${b})`);
+
+  const bgLuminance = getLuminance(r, g, b);
+  const textColorStr = getComputedStyle(cardElement).color;
+  const { r: textR, g: textG, b: textB } = colorToRGB(textColorStr);
+  const textLuminance = getLuminance(textR, textG, textB);
+  const minContrast = 4.5;
+
+  if (getContrastRatio(bgLuminance, textLuminance) < minContrast) {
+    let adjusted;
+
+    // targetEffLum is the luminance the blended (opacity-60) text must reach
+    // to achieve 4.5:1 against the background.
+    if (bgLuminance > textLuminance) {
+      // Background lighter — try darkening text
+      const targetEffLum = (bgLuminance + 0.05) / minContrast - 0.05;
+      if (targetEffLum >= 0) {
+        const v = greyForEffectiveLum(r, g, b, targetEffLum, MIN_TEXT_OPACITY, false);
+        adjusted = darkenToLuminance(textR, textG, textB, textLuminance, getLuminance(v, v, v));
+      } else {
+        // Cannot darken enough — lighten above background instead
+        const targetEffLum2 = minContrast * (bgLuminance + 0.05) - 0.05;
+        const v = greyForEffectiveLum(r, g, b, Math.min(1, targetEffLum2), MIN_TEXT_OPACITY, true);
+        adjusted = lightenToLuminance(textR, textG, textB, textLuminance, getLuminance(v, v, v));
+      }
+    } else {
+      // Background darker — try lightening text
+      const targetEffLum = minContrast * (bgLuminance + 0.05) - 0.05;
+      if (targetEffLum <= 1) {
+        const v = greyForEffectiveLum(r, g, b, targetEffLum, MIN_TEXT_OPACITY, true);
+        adjusted = lightenToLuminance(textR, textG, textB, textLuminance, getLuminance(v, v, v));
+      } else {
+        // Cannot lighten enough — darken below background instead
+        const targetEffLum2 = (bgLuminance + 0.05) / minContrast - 0.05;
+        const v = greyForEffectiveLum(r, g, b, Math.max(0, targetEffLum2), MIN_TEXT_OPACITY, false);
+        adjusted = darkenToLuminance(textR, textG, textB, textLuminance, getLuminance(v, v, v));
+      }
+    }
+
+    cardElement.style.setProperty('--card-text-color', `rgb(${adjusted.r}, ${adjusted.g}, ${adjusted.b})`);
+  } else {
+    cardElement.style.removeProperty('--card-text-color');
+  }
+}
+
 function extractAverageColor(imgElement, cardElement) {
   const img = new Image();
   img.crossOrigin = 'anonymous';
@@ -125,8 +248,7 @@ function extractAverageColor(imgElement, cardElement) {
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
     let r = 0, g = 0, b = 0;
     for (let i = 0; i < data.length; i += 4) {
@@ -140,23 +262,9 @@ function extractAverageColor(imgElement, cardElement) {
     g = Math.round(g / pixelCount);
     b = Math.round(b / pixelCount);
 
-    // Calculate luminance and darken if too light
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-    let finalR = r;
-    let finalG = g;
-    let finalB = b;
-
-    if (luminance > 0.5) {
-      // Color is too light, darken it
-      const darknessFactor = 0.5;
-      finalR = Math.round(r * darknessFactor);
-      finalG = Math.round(g * darknessFactor);
-      finalB = Math.round(b * darknessFactor);
-    }
-
-    const color = `rgb(${finalR}, ${finalG}, ${finalB})`;
-    cardElement.style.setProperty('--card-bg-color', color);
+    // Cache raw color so theme changes can re-adjust without reloading the image
+    cardElement.dataset.rawColor = `${r},${g},${b}`;
+    applyContrastColor(cardElement);
   };
 
   img.onerror = () => console.error('Failed to load image for color extraction:', imgElement.src);
@@ -173,5 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // Re-apply contrast colors whenever the theme changes
+  new MutationObserver(() => {
+    document.querySelectorAll('article[data-color-card="true"]').forEach(applyContrastColor);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 });
 </script>
