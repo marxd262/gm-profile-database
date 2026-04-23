@@ -302,6 +302,7 @@ const profilesJson = JSON.stringify(allProfiles);
       // ===== UI UPDATE =====
       function applyFilters() {
         const results = filterProfiles();
+        console.log('applyFilters called, filtered results:', results.length, 'profiles');
         updateUI(results);
       }
       
@@ -330,10 +331,12 @@ const profilesJson = JSON.stringify(allProfiles);
         
         // Show/hide profile cards
         const allCards = document.querySelectorAll('.profile-grid article');
+        console.log('Total cards in grid:', allCards.length);
         allCards.forEach(card => card.style.display = 'none');
 
         paginatedResults.forEach(profile => {
           const card = document.querySelector(`article[data-profile-slug="${profile.slug}"]`);
+          console.log(`Looking for card with slug "${profile.slug}":`, card ? 'found' : 'NOT FOUND');
           if (card) card.style.display = '';
         });
         
@@ -693,14 +696,16 @@ const profilesJson = JSON.stringify(allProfiles);
           const detail = e.detail || {};
           state.search = detail.query || '';
           state.page = 1;
-          
+
+          console.log('search-change event received:', { query: state.search, pagefindResults: detail.pagefindResults });
+
           // Handle Pagefind results if available
           if (detail.pagefindResults) {
             state.pagefindResults = detail.pagefindResults;
           } else {
             state.pagefindResults = null;
           }
-          
+
           applyFilters();
         });
       }
