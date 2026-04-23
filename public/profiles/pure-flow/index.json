@@ -1,0 +1,31 @@
+{
+  "name": "pure-flow",
+  "downloadPath": "/profiles/pure-flow/",
+  "displayName": "Pure Flow",
+  "description": "Consistent flow throughout, with only maximum pressure and two small stop parameters controlling the phases. Works with and without scales.",
+  "author": "modsmthng",
+  "date": "2025-12-20",
+  "link": "https://discord.com/channels/951416527721230336/1451876259624910899",
+  "tags": ["lever", "advanced", "light-roast", "direct-lever", "flow-profiling"],
+  "difficulty": "advanced",
+  "variants": [
+        {
+          "id": "pure-flow-(5-10g)",
+          "file": "pure-flow-(5-10g).json",
+          "label": "Pure Flow (5-10g)",
+          "doseRange": "5-10g"
+        },
+                {
+          "id": "pure-flow-(10-20g)",
+          "file": "pure-flow-(10-20g).json",
+          "label": "Pure Flow (10-20g)",
+          "doseRange": "10-20g"
+        },
+        {
+          "id": "pure-flow-(20-25g)",
+          "file": "pure-flow-(20-25g).json",
+          "label": "Pure Flow (20-25g)",
+          "doseRange": "20-25g"
+        }
+  ]
+}
