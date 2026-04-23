@@ -46,10 +46,10 @@ const formattedDate = new Date(profile.date).toLocaleDateString('en-US', {
     <!-- Profile Image -->
     {profile.picture ? (
       <figure class="aspect-video bg-base-200">
-        <img 
-          src={profile.picture} 
+        <img
+          src={profile.picture}
           alt={profile.displayName}
-          class="w-full h-full object-cover"
+          class="w-full h-full object-contain"
           loading="lazy"
         />
       </figure>

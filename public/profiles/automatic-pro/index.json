@@ -4,6 +4,7 @@
   "description": "Intelligent profiles designed to automatically regulate puck saturation, pressure, and flow for consistent extractions. Features adaptive bloom control, multi-phase preinfusion, and flow profiling that adjusts to your coffee. Works across different doses, baskets, and machine types (direct lever, spring lever, pump). Perfect for home baristas seeking reproducible results without manual intervention.",
   "author": "modsmthng",
   "link": "https://discord.com/channels/951416527721230336/1408032674131480647",
+  "picture": "images/ap.png",
   "date": "2026-04-22",
   "complexity": "high",
   "tags": ["automatic", "pro", "adaptive", "flow-profiling"],
