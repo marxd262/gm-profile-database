@@ -135,8 +135,14 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
   </div>
 
   <!-- Profile Header -->
-  <div class="card bg-base-100 shadow-lg mb-4 profile-header" data-pagefind-body>
-    <div class="card-body">
+  <div
+    class="card bg-base-100 shadow-lg mb-4 profile-header"
+    data-pagefind-body
+    data-color-card={profile.picture ? 'true' : 'false'}
+    data-color-broadcast={profile.picture ? 'true' : 'false'}
+    style="background-color: var(--card-bg-color, var(--color-base-100));"
+  >
+    <div class="card-body" style="color: var(--card-text-color, inherit)">
       <div class="flex flex-col md:flex-row gap-6">
         <!-- Profile Picture -->
         {profile.picture && (
@@ -145,6 +151,7 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
               src={profile.picture}
               alt={`${profile.displayName} profile picture`}
               class="w-full h-auto rounded-lg object-cover"
+              data-extract-color="true"
             />
           </div>
         )}
@@ -153,22 +160,22 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
         <div class="flex-1 flex flex-col md:flex-row justify-between items-start gap-4">
           <div class="flex-1">
             <h1 class="text-3xl font-bold mb-2" data-pagefind-meta="title">{profile.displayName}</h1>
-            <p class="text-base-content/70 mb-4">{profile.description}</p>
+            <p class="opacity-70 mb-4">{profile.description}</p>
 
             <!-- Metadata -->
             <div class="flex flex-wrap gap-3 items-center">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold text-base-content/70">Profile Complexity:</span>
+                <span class="text-sm font-semibold opacity-70">Profile Complexity:</span>
                 <Badge variant={complexityVariant as any} size="md" data-pagefind-filter="complexity">
                   {profile.complexity}
                 </Badge>
               </div>
 
-              <div class="text-sm text-base-content/60">
+              <div class="text-sm opacity-60">
                 by <span class="font-semibold" data-pagefind-filter="author">{profile.author}</span>
               </div>
 
-              <div class="text-sm text-base-content/60">
+              <div class="text-sm opacity-60">
                 {formattedDate}
               </div>
             </div>
@@ -216,8 +223,12 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
 
   <!-- Selection Card (Pattern B & C) -->
   {(isPatternB || isPatternC) && (
-    <div class="card bg-base-100 shadow-sm mb-4 profile-selection">
-      <div class="card-body py-4">
+    <div
+      class="card bg-base-100 shadow-sm mb-4 profile-selection"
+      data-color-card={profile.picture ? 'true' : 'false'}
+      style="background-color: var(--card-bg-color, var(--color-base-100));"
+    >
+      <div class="card-body py-4" style="color: var(--card-text-color, inherit)">
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
           <!-- Version dropdown (Pattern C only) -->
           {isPatternC && (
@@ -334,8 +345,12 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
   )}
 
   <!-- Chart -->
-  <div class="card bg-base-100 shadow-sm mb-4 profile-chart">
-    <div class="card-body">
+  <div
+    class="card bg-base-100 shadow-sm mb-4 profile-chart"
+    data-color-card={profile.picture ? 'true' : 'false'}
+    style="background-color: var(--card-bg-color, var(--color-base-100));"
+  >
+    <div class="card-body" style="color: var(--card-text-color, inherit)">
       <h2 class="card-title mb-4">Profile Visualization</h2>
       <div id="chart-wrapper">
         <ProfileChart
@@ -348,8 +363,12 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
 
   <!-- Machine Compatibility -->
   {profile.machineCompatibility && profile.machineCompatibility.length > 0 && (
-    <div class="card bg-base-100 shadow-sm mb-4 profile-compatibility">
-      <div class="card-body">
+    <div
+      class="card bg-base-100 shadow-sm mb-4 profile-compatibility"
+      data-color-card={profile.picture ? 'true' : 'false'}
+      style="background-color: var(--card-bg-color, var(--color-base-100));"
+    >
+      <div class="card-body" style="color: var(--card-text-color, inherit)">
         <h2 class="card-title mb-4">Compatible Machines</h2>
         <div class="flex flex-wrap gap-2">
           {profile.machineCompatibility.map((machine: string) => (
@@ -575,5 +594,9 @@ function formatVariantLabel(variant: { label?: string; doseRange?: string }) {
         }
       });
     }
+  </script>
+
+  <script>
+    import '../../../scripts/card-color.js';
   </script>
 </Base>

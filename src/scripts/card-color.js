@@ -84,6 +84,8 @@ export function applyContrastColor(cardElement) {
   const textLuminance = getLuminance(textR, textG, textB);
   const minContrast = 4.5;
 
+  let effectiveTextR = textR, effectiveTextG = textG, effectiveTextB = textB;
+
   if (getContrastRatio(bgLuminance, textLuminance) < minContrast) {
     let adjusted;
 
@@ -112,9 +114,20 @@ export function applyContrastColor(cardElement) {
     }
 
     cardElement.style.setProperty('--card-text-color', `rgb(${adjusted.r}, ${adjusted.g}, ${adjusted.b})`);
+    effectiveTextR = adjusted.r; effectiveTextG = adjusted.g; effectiveTextB = adjusted.b;
   } else {
     cardElement.style.removeProperty('--card-text-color');
   }
+
+  // Form field background: mix bg 15% toward the text direction in linear space.
+  // This makes fields lighter on dark cards and darker on light cards, always readable.
+  const FIELD_MIX = 0.10;
+  const fieldBg = {
+    r: toSRGB(toLinear(r) * (1 - FIELD_MIX) + toLinear(effectiveTextR) * FIELD_MIX),
+    g: toSRGB(toLinear(g) * (1 - FIELD_MIX) + toLinear(effectiveTextG) * FIELD_MIX),
+    b: toSRGB(toLinear(b) * (1 - FIELD_MIX) + toLinear(effectiveTextB) * FIELD_MIX),
+  };
+  cardElement.style.setProperty('--card-field-bg-color', `rgb(${fieldBg.r}, ${fieldBg.g}, ${fieldBg.b})`);
 }
 
 export function extractAverageColor(imgElement, cardElement) {

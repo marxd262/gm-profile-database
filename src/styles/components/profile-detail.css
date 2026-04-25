@@ -89,6 +89,21 @@
   transform: translateY(0);
 }
 
+/* Force DaisyUI component text and form field backgrounds to follow the card's extracted color */
+[data-color-card="true"] .label-text {
+  color: inherit;
+}
+
+[data-color-card="true"] select,
+[data-color-card="true"] .select {
+  color: inherit;
+  background-color: var(--card-field-bg-color, var(--color-base-200));
+}
+
+[data-color-card="true"] #variant-details .bg-base-200 {
+  background-color: var(--card-field-bg-color, var(--color-base-200));
+}
+
 /* Chart fade-in */
 #chart-wrapper {
   animation: cardEnter 250ms ease-out forwards;
