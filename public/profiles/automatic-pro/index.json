@@ -1,7 +1,7 @@
 {
   "name": "automatic-pro",
   "displayName": "Automatic Pro",
-  "description": "Intelligent profiles designed to automatically regulate puck saturation, pressure, and flow for consistent extractions. Features adaptive bloom control, multi-phase preinfusion, and flow profiling that adjusts to your coffee. Works across different doses, baskets, and machine types (direct lever, spring lever, pump). Perfect for home baristas seeking reproducible results without manual intervention.",
+  "description": "Automatic Pro is a universal profile family. Instead of bean-specific profiles, it lets taste be controlled through grind, temperature, yield, and preparation. Its key difference is adaptive behavior: using pressure and flow feedback, it adjusts phases automatically, reducing the need for manual tweaking and keeping the focus on flavor.",
   "author": "modsmthng",
   "link": "https://discord.com/channels/951416527721230336/1408032674131480647",
   "picture": "images/AP_render_var3.png",
@@ -59,55 +59,64 @@
           "id": "9g-direct",
           "file": "vIT3_0_29_6/Automatic Pro 9g [Direct Lever] vIT3_0_29_6.json",
           "label": "9g Direct Lever",
-          "doseRange": "9g"
+          "doseRange": "9g",
+          "notes": "Flow profile - static declining flow based main extraction, suitable for all kinds of beans and drinks (the original Automatic Pro experience). If this causes issues with a fast pressure drop, switch to one of the other variations."
         },
         {
           "id": "18g-direct",
           "file": "vIT3_0_29_6/Automatic Pro 18g [Direct Lever] vIT3_0_29_6.json",
           "label": "18g Direct Lever",
-          "doseRange": "18g"
+          "doseRange": "18g",
+          "notes": "Flow profile - static declining flow based main extraction, suitable for all kinds of beans and drinks (the original Automatic Pro experience). If this causes issues with a fast pressure drop, switch to one of the other variations."
         },
         {
           "id": "18g-spring",
           "file": "vIT3_0_29_6/Automatic Pro 18g [Spring Lever] vIT3_0_29_6.json",
           "label": "18g Spring Lever",
-          "doseRange": "18g"
+          "doseRange": "18g",
+          "notes": "Pressure profile - static declining pressure based main extraction, rounded flavor for an authentic Italian espresso. If the shot runs too fast, grind finer."
         },
         {
           "id": "20g-9bar",
           "file": "vIT3_0_29_6/Automatic Pro 20g [9 bar] vIT3_0_29_6.json",
           "label": "20g 9 Bar",
-          "doseRange": "20g"
+          "doseRange": "20g",
+          "notes": "Static 9 bar pressure based main extraction, good to learn what grind size, ratio, and temperature do."
         },
         {
           "id": "20g-adaptive",
           "file": "vIT3_0_29_6/Automatic Pro 20g [Adaptive Pressure] vIT3_0_29_6.json",
           "label": "20g Adaptive Pressure",
-          "doseRange": "20g"
+          "doseRange": "20g",
+          "notes": "Adaptive pressure based main extraction, experimental."
         },
         {
           "id": "20g-direct",
           "file": "vIT3_0_29_6/Automatic Pro 20g [Direct Lever] vIT3_0_29_6.json",
           "label": "20g Direct Lever",
-          "doseRange": "20g"
+          "doseRange": "20g",
+          "notes": "Flow profile - static declining flow based main extraction, suitable for all kinds of beans and drinks (the original Automatic Pro experience). If this causes issues with a fast pressure drop, switch to one of the other variations."
         },
         {
           "id": "20g-spring",
           "file": "vIT3_0_29_6/Automatic Pro 20g [Spring Lever] vIT3_0_29_6.json",
           "label": "20g Spring Lever",
-          "doseRange": "20g"
+          "doseRange": "20g",
+          "notes": "Pressure profile - static declining pressure based main extraction, rounded flavor for an authentic Italian espresso. If the shot runs too fast, grind finer."
         },
         {
           "id": "21g-direct",
           "file": "vIT3_0_29_6/Automatic Pro 21g  [Direct Lever] vIT3_0_29_6.json",
           "label": "21g Direct Lever",
-          "doseRange": "21g"
+          "doseRange": "21g",
+          "notes": "Flow profile - static declining flow based main extraction, suitable for all kinds of beans and drinks (the original Automatic Pro experience). If this causes issues with a fast pressure drop, switch to one of the other variations."
         },
         {
           "id": "21g-spring",
           "file": "vIT3_0_29_6/Automatic Pro 21g [Spring Lever] vIT3_0_29_6.json",
           "label": "21g Spring Lever",
-          "doseRange": "21g"
+          "doseRange": "21g",
+          "notes": "Pressure profile - static declining pressure based main extraction, rounded flavor for an authentic Italian espresso. If the shot runs too fast, grind finer."
         }
       ]
     },
@@ -122,7 +131,8 @@
           "id": "20g-9bar",
           "file": "vIT3_0_29_7/Automatic Pro 20g [9 bar] vIT3_0_29_7.json",
           "label": "20g 9 Bar",
-          "doseRange": "20g"
+          "doseRange": "20g",
+          "notes": "Static 9 bar pressure based main extraction, good to learn what grind size, ratio, and temperature do."
         }
       ]
     },
@@ -137,25 +147,29 @@
           "id": "direct",
           "file": "vIT3_0_30_11/Automatic Pro [Direct Lever] vIT3_0_30_11.json",
           "label": "Direct Lever",
-          "doseRange": "All doses"
+          "doseRange": "All doses",
+          "notes": "Flow profile - static declining flow based main extraction, suitable for all kinds of beans and drinks (the original Automatic Pro experience). If this causes issues with a fast pressure drop, switch to one of the other variations."
         },
         {
           "id": "spring",
           "file": "vIT3_0_30_11/Automatic Pro [Spring Lever] vIT3_0_30_11.json",
           "label": "Spring Lever",
-          "doseRange": "All doses"
+          "doseRange": "All doses",
+          "notes": "Pressure profile - static declining pressure based main extraction, rounded flavor for an authentic Italian espresso. If the shot runs too fast, grind finer."
         },
         {
           "id": "9bar",
           "file": "vIT3_0_30_11/Automatic Pro [9 bar] vIT3_0_30_11.json",
           "label": "9 Bar",
-          "doseRange": "All doses"
+          "doseRange": "All doses",
+          "notes": "Static 9 bar pressure based main extraction, good to learn what grind size, ratio, and temperature do."
         },
         {
           "id": "adaptive",
           "file": "vIT3_0_30_11/Automatic Pro [Adaptive Pressure] vIT3_0_30_11.json",
           "label": "Adaptive Pressure",
-          "doseRange": "All doses"
+          "doseRange": "All doses",
+          "notes": "Adaptive pressure based main extraction, experimental."
         }
       ]
     }
