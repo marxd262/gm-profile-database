@@ -6,15 +6,17 @@ interface StatusBarProps {
   errorCount: number;
   saveStatus: AppState['saveStatus'];
   supportsFS: boolean;
+  isModified: boolean;
   onOpen: () => void;
   onSave: () => void;
   onSaveAs: () => void;
+  onReset: () => void;
 }
 
 const btnBase = 'px-3 py-1.5 rounded text-xs font-medium transition-colors select-none';
 
 export function StatusBar({
-  isValid, errorCount, supportsFS, onOpen, onSave, onSaveAs,
+  isValid, errorCount, supportsFS, isModified, onOpen, onSave, onSaveAs, onReset,
 }: StatusBarProps): JSX.Element {
   return (
     <footer class="flex items-center justify-between px-5 py-3 border-t border-zinc-800 bg-zinc-900 shrink-0 gap-4">
@@ -36,6 +38,17 @@ export function StatusBar({
       </div>
 
       <div class="flex items-center gap-2">
+        <button
+          onClick={onReset}
+          disabled={!isModified}
+          class={`${btnBase} ${
+            isModified
+              ? 'bg-zinc-700 text-zinc-400 hover:bg-red-900 hover:text-red-300'
+              : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+          }`}
+        >
+          Reset
+        </button>
         <button
           onClick={onOpen}
           class={`${btnBase} bg-zinc-700 text-zinc-200 hover:bg-zinc-600`}
