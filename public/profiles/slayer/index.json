@@ -1,0 +1,24 @@
+{
+  "name": "slayer",
+  "displayName": "Slayer",
+  "description": "a profile to replicate a Slayer. Pretty long pre with needle valve like tweaking at the finish.",
+  "author": "KT | GM#0361",
+  "date": "2026-04-25",
+  "complexity": "mid",
+  "tags": [
+    "Slayer",
+    "Medium Roast"
+  ],
+  "link": "https://discord.com/channels/951416527721230336/1452719058007887944",
+  "variants": [
+    {
+      "id": "v1",
+      "file": "Slayer.json",
+      "label": "Slayer",
+      "doseRange": "18g",
+      "yieldRange": "40g",
+      "timeRange": "50-60s",
+      "notes": "Good for medium roasts"
+    }
+  ]
+}
