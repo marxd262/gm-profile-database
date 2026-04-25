@@ -1,0 +1,32 @@
+{
+  "name": "filter",
+  "displayName": "Filter 3.0",
+  "description": "e’ve all tried to make good filter coffee in an espresso machine.  It makes sense, right? Every espresso machine provides access to hot water, a spray head, a filter basket, and usually automatic volumetric dosing.  Unfortunately, the flow and pressure provided by espresso machines is generally excessive for brewing great filter coffee.\n\nIf cafes could brew amazing filter coffee in an espresso machine, it would be the Holy Grail of brewing coffee by the cup. \n\nAfter almost three decades of thinking and tinkering, I have finally found a method to brew extraordinary filter coffee in a (Decent) espresso machine in three minutes or less. I’ll call this Filter 2.0 until someone suggests a better name. \n\nMuch credit goes to Jonathan Gagné for sparking part of this idea with his long-steep aeropress technique, and John Buckman for his relentless improvement of the DE1 machine.  ",
+  "author": "Scott Rao",
+  "date": "2026-04-25",
+  "complexity": "mid",
+  "picture": "filtershot.webp",
+  "tags": [
+    "Filter"
+  ],
+  "link": "https://discord.com/channels/951416527721230336/1387602622181015603",
+  "versions": [
+    {
+      "id": "v3.0",
+      "label": "3.0",
+      "releaseDate": "2026-04-25",
+      "status": "stable",
+      "variants": [
+        {
+          "id": "filter",
+          "file": "filter3.0.json",
+          "label": "Filter 3.0",
+          "doseRange": "20g",
+          "yieldRange": "100g",
+          "grindSize": "Very coarse (cold brew coarse)",
+          "notes": "Preinfusion: I set the pre-infusion time just high enough such that the entire puck will be saturated a few seconds after the preinfusion flow stops. If you are using a Bluetooth scale with the DE1, you can set the pre-nfusion time longer and set the maximum weight to something like 2g, which will cause the profile to move on to the bloom as soon as the scale senses a few drips. An easier solution might be to figure out the number of ml at which you’d like preinfusion to end. Experienced DE1 users will know there are several more sophisticated ways to program just the right amount of preinfusion. \n\nBloom (pause): As noted, the bloom time is  flexible. For use in a café, I think two minutes is adequate. Longer bloom times are marginally beneficial. For use at home, you may want to experiment with much longer bloom times.\n\nPercolation (flat flow): my standard flow rate is 3 ml/s. I find a higher flow rates increase fruitiness of coffee but also increase the risk of astringency. The flow rate should ideally be scaled to dose size. For example, if you are using a small basket and does such as 12 g, you may want to use 2 ml/s but 3 ml/s would be appropriate for an 18g dose. Flow rate should scale more or less in proportion to the depth of the coffee bed ."
+        }
+      ]
+    }
+  ]
+}

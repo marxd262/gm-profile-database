@@ -1,0 +1,70 @@
+{
+  "label": "Scott Rao Filter - 20g",
+  "type": "pro",
+  "description": "",
+  "temperature": 90,
+  "utility": false,
+  "phases": [
+    {
+      "name": "Pre-wet",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 15,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "flow",
+        "pressure": 3,
+        "flow": 5
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 0.5
+        }
+      ]
+    },
+    {
+      "name": "Bloom",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 120,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": 0
+    },
+    {
+      "name": "2.5 ml/s",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 70,
+      "temperature": 88,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "flow",
+        "pressure": 0,
+        "flow": 2.5
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 100
+        }
+      ]
+    }
+  ]
+}
