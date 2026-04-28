@@ -1,5 +1,5 @@
 {
-  "label": "Automatic Pro [Spring Lever] vIT3_0_30_11",
+  "label": "Automatic Pro [Adaptive Pressure] vIT3_0_30_12",
   "type": "pro",
   "description": "If using time mode: stop manually / change last duration. Automatic Pro is a profile family built to automate puck saturation, bloom, and extraction with clever phase stops.",
   "temperature": 91,
@@ -132,7 +132,7 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 5
+          "value": 4
         },
         {
           "type": "pumped",
@@ -171,43 +171,26 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 3.375
+          "value": 6
         }
       ]
     },
     {
-      "name": "Check Extraction",
+      "name": "Stabilize Extraction",
       "phase": "brew",
       "valve": 1,
-      "duration": 20,
+      "duration": 2,
       "temperature": 0,
       "transition": {
-        "type": "instant",
-        "duration": 0,
-        "adaptive": false
+        "type": "linear",
+        "duration": 1,
+        "adaptive": true
       },
       "pump": {
-        "target": "pressure",
+        "target": "flow",
         "pressure": 9,
-        "flow": 0
-      },
-      "targets": [
-        {
-          "type": "pressure",
-          "operator": "gte",
-          "value": 8.8
-        },
-        {
-          "type": "volumetric",
-          "operator": "gte",
-          "value": 20
-        },
-        {
-          "type": "pumped",
-          "operator": "gte",
-          "value": 20
-        }
-      ]
+        "flow": 2
+      }
     },
     {
       "name": "Main Extraction",
@@ -216,20 +199,20 @@
       "duration": 90,
       "temperature": 0,
       "transition": {
-        "type": "linear",
-        "duration": 40,
-        "adaptive": false
+        "type": "instant",
+        "duration": 0,
+        "adaptive": true
       },
       "pump": {
         "target": "pressure",
-        "pressure": 4,
-        "flow": 0
+        "pressure": -1,
+        "flow": 6
       },
       "targets": [
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 36
+          "value": 40
         }
       ]
     }

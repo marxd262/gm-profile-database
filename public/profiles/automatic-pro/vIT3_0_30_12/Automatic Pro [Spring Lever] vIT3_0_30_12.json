@@ -1,5 +1,5 @@
 {
-  "label": "Automatic Pro [9 bar] vIT3_0_30_11",
+  "label": "Automatic Pro [Spring Lever] vIT3_0_30_12",
   "type": "pro",
   "description": "If using time mode: stop manually / change last duration. Automatic Pro is a profile family built to automate puck saturation, bloom, and extraction with clever phase stops.",
   "temperature": 91,
@@ -132,7 +132,7 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 5
+          "value": 4
         },
         {
           "type": "pumped",
@@ -171,7 +171,41 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 3.375
+          "value": 6
+        }
+      ]
+    },
+    {
+      "name": "Check Extraction",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 20,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "pressure",
+        "pressure": 9,
+        "flow": 0
+      },
+      "targets": [
+        {
+          "type": "pressure",
+          "operator": "gte",
+          "value": 8.8
+        },
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 20
+        },
+        {
+          "type": "pumped",
+          "operator": "gte",
+          "value": 20
         }
       ]
     },
@@ -182,20 +216,20 @@
       "duration": 90,
       "temperature": 0,
       "transition": {
-        "type": "instant",
-        "duration": 0,
-        "adaptive": true
+        "type": "linear",
+        "duration": 40,
+        "adaptive": false
       },
       "pump": {
         "target": "pressure",
-        "pressure": 9,
+        "pressure": 4,
         "flow": 0
       },
       "targets": [
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 40
+          "value": 36
         }
       ]
     }
