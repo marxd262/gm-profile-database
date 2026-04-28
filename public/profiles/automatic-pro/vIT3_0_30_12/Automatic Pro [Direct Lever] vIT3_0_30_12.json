@@ -1,5 +1,5 @@
 {
-  "label": "Automatic Pro [Direct Lever] vIT3_0_30_11",
+  "label": "Automatic Pro [Direct Lever] vIT3_0_30_12",
   "type": "pro",
   "description": "If using time mode: stop manually / change last duration. Automatic Pro is a profile family built to automate puck saturation, bloom, and extraction with clever phase stops.",
   "temperature": 91,
@@ -132,7 +132,7 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 5
+          "value": 4
         },
         {
           "type": "pumped",
@@ -171,7 +171,7 @@
         {
           "type": "volumetric",
           "operator": "gte",
-          "value": 3.375
+          "value": 6
         }
       ]
     },
