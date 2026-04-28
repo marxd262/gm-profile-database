@@ -94,8 +94,16 @@ const profilePath = buildProfileAssetPath(profileName, variantFile);
         throw new Error('Profile has no phases');
       }
 
+      // Read the card's computed text color so Chart.js axes/labels match the card foreground
+      const textColor = getComputedStyle(container).color;
+      const rgb = textColor.match(/\d+/g);
+      const gridColor = rgb ? `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.1)` : 'rgba(128,128,128,0.1)';
+      Chart.defaults.color = textColor;
+
       // Prepare chart configuration
       const chartConfig = makeChartData(profileData);
+      chartConfig.options.scales.x.grid.color = gridColor;
+      chartConfig.options.scales['y-pressure'].grid.color = gridColor;
 
       // Hide loading, show canvas
       loading.hidden = true;
@@ -150,5 +158,14 @@ const profilePath = buildProfileAssetPath(profileName, variantFile);
     document.addEventListener('DOMContentLoaded', loadProfileChart);
   } else {
     loadProfileChart();
+  }
+
+  // Re-render when card-color.js updates the parent card's --card-text-color
+  const colorCard = container?.closest('[data-color-card]');
+  if (colorCard) {
+    new MutationObserver(() => loadProfileChart()).observe(colorCard, {
+      attributes: true,
+      attributeFilter: ['style'],
+    });
   }
 </script>

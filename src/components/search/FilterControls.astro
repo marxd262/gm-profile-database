@@ -61,7 +61,7 @@ const sortOptions = [
     <div class="flex gap-3 items-center" id="filter-dropdowns">
       <!-- Tag Filter -->
       {allTags.length > 0 && (
-        <div class="dropdown dropdown-hover">
+        <div class="dropdown" id="tag-dropdown">
           <label tabindex="0" class="btn btn-sm btn-outline gap-1 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -123,7 +123,7 @@ const sortOptions = [
   <div id="active-filters" class="flex flex-wrap gap-2 items-center min-h-[1.75rem]">
     <span id="active-filters-label" class="text-sm text-base-content/60 hidden">Active:</span>
     <div id="filter-chips" class="flex flex-wrap gap-2"></div>
-    <button 
+    <button
       id="clear-all-btn"
       type="button"
       class="btn btn-xs btn-ghost text-primary hidden"
@@ -132,4 +132,31 @@ const sortOptions = [
     </button>
   </div>
 </div>
+
+<script>
+  const tagDropdown = document.getElementById('tag-dropdown');
+  if (tagDropdown) {
+    const trigger = tagDropdown.querySelector<HTMLElement>('label[tabindex="0"]');
+    const content = tagDropdown.querySelector<HTMLElement>('.dropdown-content');
+    let leaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const open = () => {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+      tagDropdown.classList.add('dropdown-open');
+    };
+
+    const scheduleClose = () => {
+      leaveTimer = setTimeout(() => {
+        tagDropdown.classList.remove('dropdown-open');
+        trigger?.blur();
+      }, 80);
+    };
+
+    trigger?.addEventListener('mouseenter', open);
+    content?.addEventListener('mouseenter', () => {
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+    });
+    tagDropdown.addEventListener('mouseleave', scheduleClose);
+  }
+</script>
 

@@ -1,0 +1,111 @@
+{
+  "label": "Slayer",
+  "type": "pro",
+  "description": "Schema-safe Slayer-style profile with stepped needle-valve flow taper.",
+  "temperature": 92,
+  "utility": false,
+  "phases": [
+    {
+      "name": "Prebrew",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 22,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "flow",
+        "pressure": 3,
+        "flow": 1.6
+      }
+    },
+    {
+      "name": "Bloom - Pause)",
+      "phase": "preinfusion",
+      "valve": 1,
+      "duration": 7,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": 0
+    },
+    {
+      "name": "Main extraction",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 35,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "pressure",
+        "pressure": 9,
+        "flow": 0
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 32
+        }
+      ]
+    },
+    {
+      "name": "Needle - Soft close",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 20,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "flow",
+        "pressure": 9,
+        "flow": 2
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 36
+        }
+      ]
+    },
+    {
+      "name": "Needle - Polish finish",
+      "phase": "brew",
+      "valve": 1,
+      "duration": 25,
+      "temperature": 0,
+      "transition": {
+        "type": "instant",
+        "duration": 0,
+        "adaptive": false
+      },
+      "pump": {
+        "target": "flow",
+        "pressure": 9,
+        "flow": 1.6
+      },
+      "targets": [
+        {
+          "type": "volumetric",
+          "operator": "gte",
+          "value": 40
+        }
+      ]
+    }
+  ]
+}

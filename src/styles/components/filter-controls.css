@@ -14,6 +14,11 @@
   animation: pulse 200ms ease-out;
 }
 
+/* Prevent invisible dropdown content from catching mouse events when closed */
+#tag-dropdown:not(.dropdown-open) .dropdown-content {
+  pointer-events: none;
+}
+
 /* Dropdown scroll styling */
 .dropdown-content {
   scrollbar-width: thin;

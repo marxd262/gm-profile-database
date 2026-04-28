@@ -25,6 +25,7 @@
     "chart.js": "^4.4.0",
     "chartjs-plugin-annotation": "^3.1.0",
     "daisyui": "^5.5.19",
+    "jszip": "^3.10.1",
     "pagefind": "^1.5.2",
     "tailwindcss": "^4.2.4"
   },

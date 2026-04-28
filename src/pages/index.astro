@@ -63,11 +63,32 @@ const initialSort = Astro.url.searchParams.get('sort') || 'newest';
 
 // Profile data for client-side filtering (embedded as JSON)
 const profilesJson = JSON.stringify(allProfiles);
+
+// Build download manifest - all JSON files across all profile directories
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase === '/' ? '' : rawBase.replace(/\/$/, '');
+const downloadManifest = [];
+for (const profile of allProfiles) {
+  const profileDir = join(process.cwd(), 'public', 'profiles', profile.slug);
+  try {
+    const dirFiles = await readdir(profileDir, { recursive: true });
+    for (const f of dirFiles) {
+      const normalized = f.replace(/\\/g, '/');
+      const filename = normalized.split('/').pop();
+      if (filename.endsWith('.json') && filename !== 'index.json') {
+        const encodedPath = normalized.split('/').map(encodeURIComponent).join('/');
+        downloadManifest.push(`${base}/profiles/${profile.slug}/${encodedPath}`);
+      }
+    }
+  } catch { /* skip unreadable dirs */ }
+}
 ---
 
-<Base 
+<Base
   title="Gaggimate Profile Store - Espresso Brewing Profiles"
   description="Browse and download community-created espresso brewing profiles for Gaggimate. Find the perfect pressure and flow profile for your setup."
+  showDownloadAll={true}
+  downloadManifest={downloadManifest}
 >
   <!-- Hero Section -->
   <div class="hero bg-base-200 rounded-lg mb-4">
@@ -93,7 +114,7 @@ const profilesJson = JSON.stringify(allProfiles);
   </div>
 
   <!-- Search Section -->
-  <div class="mb-3">
+  <div class="mb-2">
     <SearchBar
       placeholder="Search profiles by name, description, tags, author..."
       initialValue={initialSearch}
@@ -101,7 +122,7 @@ const profilesJson = JSON.stringify(allProfiles);
   </div>
 
   <!-- Filter Controls -->
-  <div class="mb-4">
+  <div class="mb-1">
     <FilterControls
       allTags={allTags}
       allMachines={allMachines}
@@ -113,7 +134,7 @@ const profilesJson = JSON.stringify(allProfiles);
   </div>
 
   <!-- Results Count -->
-  <div id="results-count" class="text-sm text-base-content/60 mb-3">
+  <div id="results-count" class="text-sm text-base-content/60 mb-1">
     Loading profiles...
   </div>
 
@@ -141,6 +162,44 @@ const profilesJson = JSON.stringify(allProfiles);
 
   <!-- Embedded profile data for client-side filtering -->
   <script id="profiles-data" type="application/json" set:html={profilesJson} />
+
+  <!-- Download all profiles as ZIP -->
+  <script>
+    const btn = document.getElementById('download-all-btn');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        const manifest = JSON.parse((btn as HTMLButtonElement).dataset.manifest || '[]') as string[];
+        const label = btn.querySelector('span');
+        btn.setAttribute('disabled', '');
+        if (label) label.textContent = 'downloading…';
+
+        try {
+          const { default: JSZip } = await import('jszip');
+          const zip = new JSZip();
+
+          await Promise.all(manifest.map(async (url) => {
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const blob = await res.blob();
+            const filename = decodeURIComponent(url.split('/').pop()!);
+            zip.file(filename, blob);
+          }));
+
+          const blob = await zip.generateAsync({ type: 'blob' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'gm-profile-database.zip';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        } catch (err) {
+          console.error('Download failed:', err);
+        } finally {
+          btn.removeAttribute('disabled');
+          if (label) label.textContent = 'download all';
+        }
+      });
+    }
+  </script>
 
   <!-- Client-side filter engine -->
   <script is:inline>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import type { AppState, BaseFields, PatternAFields, Variant, Version } from './types';
 import { createEmptyState, createEmptyVariant, createEmptyVersion, loadFromText } from './load';
 import { buildJson } from './output';
@@ -15,6 +15,7 @@ import { DropZone } from './components/DropZone';
 
 export function App() {
   const [state, setState] = useState<AppState>(createEmptyState());
+  const baselineRef = useRef<AppState>(createEmptyState());
   const validation = useValidation(state);
   const fs = useFileSystem();
 
@@ -25,7 +26,9 @@ export function App() {
 
   const handleLoad = useCallback((text: string, fileName: string) => {
     try {
-      setState({ ...loadFromText(text, fileName), isModified: false, saveStatus: 'idle', isDragOver: false });
+      const loaded: AppState = { ...loadFromText(text, fileName), isModified: false, saveStatus: 'idle', isDragOver: false };
+      baselineRef.current = loaded;
+      setState(loaded);
     } catch {
       setState(s => ({ ...s, saveStatus: 'error', saveError: 'Could not parse JSON file' }));
     }
@@ -67,6 +70,11 @@ export function App() {
       setState(s => ({ ...s, saveStatus: 'error', saveError: String(e) }));
     }
   };
+
+  const handleReset = useCallback(() => {
+    if (!window.confirm('Discard all changes and revert to the original state?')) return;
+    setState({ ...baselineRef.current, saveStatus: 'idle', isDragOver: false });
+  }, []);
 
   // --- Keyboard shortcuts ---
 
@@ -177,9 +185,11 @@ export function App() {
         errorCount={validation.errorCount}
         saveStatus={state.saveStatus}
         supportsFS={fs.supportsFS}
+        isModified={state.isModified}
         onOpen={handleOpen}
         onSave={handleSave}
         onSaveAs={handleSaveAs}
+        onReset={handleReset}
       />
     </div>
   );

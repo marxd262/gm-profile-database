@@ -84,6 +84,8 @@ export function applyContrastColor(cardElement) {
   const textLuminance = getLuminance(textR, textG, textB);
   const minContrast = 4.5;
 
+  let effectiveTextR = textR, effectiveTextG = textG, effectiveTextB = textB;
+
   if (getContrastRatio(bgLuminance, textLuminance) < minContrast) {
     let adjusted;
 
@@ -112,9 +114,20 @@ export function applyContrastColor(cardElement) {
     }
 
     cardElement.style.setProperty('--card-text-color', `rgb(${adjusted.r}, ${adjusted.g}, ${adjusted.b})`);
+    effectiveTextR = adjusted.r; effectiveTextG = adjusted.g; effectiveTextB = adjusted.b;
   } else {
     cardElement.style.removeProperty('--card-text-color');
   }
+
+  // Form field background: mix bg 15% toward the text direction in linear space.
+  // This makes fields lighter on dark cards and darker on light cards, always readable.
+  const FIELD_MIX = 0.10;
+  const fieldBg = {
+    r: toSRGB(toLinear(r) * (1 - FIELD_MIX) + toLinear(effectiveTextR) * FIELD_MIX),
+    g: toSRGB(toLinear(g) * (1 - FIELD_MIX) + toLinear(effectiveTextG) * FIELD_MIX),
+    b: toSRGB(toLinear(b) * (1 - FIELD_MIX) + toLinear(effectiveTextB) * FIELD_MIX),
+  };
+  cardElement.style.setProperty('--card-field-bg-color', `rgb(${fieldBg.r}, ${fieldBg.g}, ${fieldBg.b})`);
 }
 
 export function extractAverageColor(imgElement, cardElement) {
@@ -123,25 +136,40 @@ export function extractAverageColor(imgElement, cardElement) {
   img.src = imgElement.src;
 
   img.onload = () => {
+    const W = imgElement.offsetWidth || img.naturalWidth;
+    const H = imgElement.offsetHeight || img.naturalHeight;
+    const borderSizePercent = 0.02; // only use the outer 2% border of the image to avoid skew from central content
+
     const canvas = document.createElement('canvas');
-    canvas.width = 10;
-    canvas.height = 10;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, W, H);
 
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const bx = Math.round(W * borderSizePercent);
+    const by = Math.round(H * borderSizePercent);
+    const data = ctx.getImageData(0, 0, W, H).data;
 
-    let r = 0, g = 0, b = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      r += data[i];
-      g += data[i + 1];
-      b += data[i + 2];
+    const OUTLIER_TRIM = 0.10; // discard brightest and darkest 10% to suppress highlight/shadow outliers
+
+    const pixels = [];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (x >= bx && x < W - bx && y >= by && y < H - by) continue;
+        const i = (y * W + x) * 4;
+        pixels.push([data[i], data[i + 1], data[i + 2]]);
+      }
     }
 
-    const pixelCount = data.length / 4;
-    r = Math.round(r / pixelCount);
-    g = Math.round(g / pixelCount);
-    b = Math.round(b / pixelCount);
+    pixels.sort((a, b) => getLuminance(...a) - getLuminance(...b));
+    const trim = Math.floor(pixels.length * OUTLIER_TRIM);
+    const trimmed = pixels.slice(trim, pixels.length - trim);
+
+    let r = 0, g = 0, b = 0;
+    for (const [pr, pg, pb] of trimmed) { r += pr; g += pg; b += pb; }
+    r = Math.round(r / trimmed.length);
+    g = Math.round(g / trimmed.length);
+    b = Math.round(b / trimmed.length);
 
     const rawColor = `${r},${g},${b}`;
     // Broadcast mode: apply the extracted color to all [data-color-card] siblings on the page
